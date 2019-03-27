@@ -5,8 +5,7 @@
 
 typedef struct Road Road;
 
-Road* newRoad(City *city1, City *city2,
-             unsigned length, int builtYear);
+Road* newRoad(City *city1, City *city2, unsigned length, int builtYear);
 
 void deleteRoad(Road *road);
 

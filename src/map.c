@@ -1,31 +1,68 @@
 
+#include <string.h>
 #include "map.h"
 
 typedef struct Map {
-	int tmp;
+    vector *cities;
+    vector *roads;
 } Map;
 
-/** @brief Tworzy nową strukturę.
- * Tworzy nową, pustą strukturę niezawierającą żadnych miast, odcinków dróg ani
- * dróg krajowych.
- * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
- * zaalokować pamięci.
- */
- 
- 
+
 Map* newMap(void) {
     Map *ptr;
     if (!(ptr = malloc(sizeof(Map))))
         exit(1);
-        
-        
+
+    ptr->cities = newVector();
+    ptr->roads = newVector();
+
 	return ptr;
 }
 
 void deleteMap(Map *map) {
-	if (map != NULL)
-		free(map);
+	if (map == NULL)
+        return;
+    free(map);
+    deleteVector(cities);
+    deleteVector(roads);
+    /// dobrze by było też usuwać zawartość
 }
+
+static City* addCity(Map *map, const char *city) {
+    return pushBack(map->cities, newCity(city));
+}
+
+/// jak nie ma, to NULL
+static City* findCityFromString(Map *map, const char *city) {
+    for (int i = 0; i < map->cities->size; i++)
+    {
+        City *elem = map->cities->data[i];
+        if (!strcmp(city, elem->name))
+            return elem;
+    }
+    return NULL;
+}
+
+/// jak nie ma, to tworzy nowy
+static City* findCityFromStringOrAdd(Map *map, const char *city) {
+    int res = findCityFromString(map, city);
+    if (res == NULL) {
+        return addCity(map, newCity(city));
+    }
+    return res;
+}
+
+/// jak nie ma, to NULL
+static City* findRoadFromCities(Map *map, City *city1, City *city2) {
+    for (int i = 0; i < city1->roads->size; i++)
+    {
+        Road *road= city1->roads->data[i];
+        if (road->city1 == city2 || road->city2 == city2)
+            return road;
+    }
+    return NULL;
+}
+
 
 /** @brief Dodaje do mapy odcinek drogi między dwoma różnymi miastami.
  * Jeśli któreś z podanych miast nie istnieje, to dodaje go do mapy, a następnie
@@ -41,7 +78,15 @@ void deleteMap(Map *map) {
  * miastami już istnieje lub nie udało się zaalokować pamięci.
  */
 bool addRoad(Map *map, const char *city1, const char *city2,
-             unsigned length, int builtYear);
+             unsigned length, int builtYear) {
+    City *cityStruct1 = findCityFromStringOrAdd(map, city1);
+    City *cityStruct2 = findCityFromStringOrAdd(map, city2);
+
+    Road *road = pushBack(map->roads, newRoad(cityStruct1, cityStruct2, length, builtYear));
+    pushBack(cityStruct1->roads, road);
+    pushBack(cityStruct2->roads, road);
+    return true;
+}
 
 /** @brief Modyfikuje rok ostatniego remontu odcinka drogi.
  * Dla odcinka drogi między dwoma miastami zmienia rok jego ostatniego remontu
@@ -56,7 +101,20 @@ bool addRoad(Map *map, const char *city1, const char *city2,
  * podanymi miastami, podany rok jest wcześniejszy niż zapisany dla tego odcinka
  * drogi rok budowy lub ostatniego remontu.
  */
-bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear);
+bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear) {
+
+    City *cityStruct1 = findCityFromStringOrAdd(map, city1);
+    City *cityStruct2 = findCityFromStringOrAdd(map, city2);
+
+    Road *road = findRoadFromCities(cityStruct1, cityStruct2);
+    if (road != NULL)
+        if (road->builtYear <= repairYear) {
+            road->builtYear = repairYear;
+            return true;
+        }
+
+    return false;
+}
 
 /** @brief Łączy dwa różne miasta drogą krajową.
  * Tworzy drogę krajową pomiędzy dwoma miastami i nadaje jej podany numer.
