@@ -17,19 +17,31 @@ Vector* newVector() {
     return ptr;
 }
 
-static void extend(Vector *vector) {
-	vector->maxSize = vector->maxSize * 2;
-	if (vector->maxSize == 0)
-		vector->maxSize = 1;
+void resize(Vector *vector, int newSize) {
+	vector->maxSize = newSize;
 
 	if (!(vector->data = realloc(vector->data, vector->maxSize * sizeof(*void))))
             exit(1);
 }
 
-void* pushBack(void *ptr) {
+static void extend(Vector *vector) {
+	if (vector->maxSize == 0)
+        resize(vector, 1);
+	else
+        resize(vector, vector->maxSize * 2);
+}
+
+void* pushBack(Vector *vector, void *ptr) {
 	if (vector->size == vector->maxSize)
 		extend(vector);
 	return vector->data[vector->size++] = ptr;
+}
+
+
+void* popBack(Vector *vector) {
+	if (vector->size > 0)
+        vector->size--;
+    return vector->data->size;
 }
 
 /// trzeba samemu usuwać rzeczy, na które były wskaźniki
@@ -39,4 +51,8 @@ void deleteVector(Vector *vector) {
 }
 
 
-#endif /* __VECTOR_H__ */
+void swapElements(Vector *vector, int a, int b) {
+    void *tmp = vector->data[a];
+    vector->data[a] = vector->data[b];
+    vector->data[b] = tmp;
+}

@@ -11,4 +11,7 @@ void deleteRoad(Road *road);
 
 bool repairRoad(Road *Road, int repairYear);
 
+City *otherCity(Road *road, City *city);
+
+
 #endif /* __ROAD_H__ */

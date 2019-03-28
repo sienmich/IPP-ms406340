@@ -11,4 +11,6 @@ void deleteCity(City *city);
 
 void pushBackRoad(City *city, Road *road);
 
+Distance *createDistance(City *city);
+
 #endif /* __CITY_H__ */

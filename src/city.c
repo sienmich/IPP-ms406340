@@ -4,7 +4,8 @@
 
 typedef struct City {
 	char *name;
-    vector *roads;
+    Vector *roads;
+    Distance *distance; ///Do dijikstry
 } City;
 
 City *newCity(const char *name) {
@@ -14,12 +15,19 @@ City *newCity(const char *name) {
 
     ptr->name = name;
     ptr->roads = newVector();
+    ptr->distance = NULL;
 
     return ptr;
 }
 
+Distance *createDistance(City *city) {
+    city->distance = newDistance(city);
+}
+
+
 void deleteCity(City *city){
     deleteVector(city->roads);
+    deleteDistatnce(city->distance);
     free(city);
 }
 

@@ -12,7 +12,7 @@ Road* newRoad(City *city1, City *city2, unsigned length, int builtYear) {
 	Road *ptr;
     if (!(ptr = malloc(sizeof(Road))))
         exit(1);
-        
+
     ptr->city1 = city1;
     ptr->city2 = city2;
     ptr->length = length;
@@ -28,5 +28,11 @@ void deleteRoad(Road *road) {
 bool repairRoad(Road *road, int repairYear) {
 	road->builtYear = repairYear;
 	return true;
+}
+
+City *otherCity(Road *road, City *city) {
+    if (city != road->city1)
+        return city1;
+    return city2;
 }
 

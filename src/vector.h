@@ -7,6 +7,12 @@ Vector* newVector();
 
 void deleteVector(Vector *vector);
 
-void pushBack(Vector *vector, void *ptr);
+void resize(Vector *vector, int newSize);
+
+void* pushBack(Vector *vector, void *ptr);
+
+void* popBack(Vector *vector);
+
+void swapElements(Vector *vector, int a, int b);
 
 #endif /* __VECTOR_H__ */

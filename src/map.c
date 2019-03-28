@@ -1,6 +1,8 @@
 
 #include <string.h>
 #include "map.h"
+#include "vector.h"
+#include "route.h"
 
 typedef struct Map {
     vector *cities;
@@ -133,8 +135,16 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear) 
  * jednoznacznie wyznaczyć drogi krajowej między podanymi miastami lub nie udało
  * się zaalokować pamięci.
  */
-bool newRoute(Map *map, unsigned routeId,
-              const char *city1, const char *city2);
+bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2) {
+    City *cityStruct1 = findCityFromString(map, city1);
+    City *cityStruct2 = findCityFromString(map, city2);
+    if (cityStruct1 == NULL || cityStruct1 == NULL)
+        return false;
+
+    dijikstra(map->cities, map->roads, cityStruct1, cityStruct2);
+
+
+}
 
 /** @brief Wydłuża drogę krajową do podanego miasta.
  * Dodaje do drogi krajowej nowe odcinki dróg do podanego miasta w taki sposób,
