@@ -1,47 +1,46 @@
 #include "vector.h"
 
-typedef struct Vector {
-    int maxSize;
-    int size;
-	void **data;
-} Vector;
-
 Vector* newVector() {
     Vector *ptr;
     if (!(ptr = malloc(sizeof(Vector))))
-        exit(1);
+        return NULL;
 
     ptr->maxSize = 0;
     ptr->size = 0;
+    ptr->data = NULL;
 
     return ptr;
 }
 
-void resize(Vector *vector, int newSize) {
+bool resize(Vector *vector, int newSize) {
+	void **tmp = realloc(vector->data, vector->maxSize * sizeof(*void));
+	if(tmp == NULL)
+        return false;
+
 	vector->maxSize = newSize;
-
-	if (!(vector->data = realloc(vector->data, vector->maxSize * sizeof(*void))))
-            exit(1);
+    vector->data = tmp;
+	return true;
 }
 
-static void extend(Vector *vector) {
+static bool extend(Vector *vector) {
 	if (vector->maxSize == 0)
-        resize(vector, 1);
+        return resize(vector, 1);
 	else
-        resize(vector, vector->maxSize * 2);
+        return resize(vector, vector->maxSize * 2);
 }
 
-void* pushBack(Vector *vector, void *ptr) {
+bool pushBack(Vector *vector, void *ptr) {
 	if (vector->size == vector->maxSize)
-		extend(vector);
-	return vector->data[vector->size++] = ptr;
+        if(!extend(vector))
+            return false;
+	vector->data[vector->size++] = ptr;
+    return true;
 }
-
 
 void* popBack(Vector *vector) {
 	if (vector->size > 0)
         vector->size--;
-    return vector->data->size;
+    return vector->data[size];
 }
 
 /// trzeba samemu usuwać rzeczy, na które były wskaźniki
@@ -50,9 +49,18 @@ void deleteVector(Vector *vector) {
     free(vector);
 }
 
-
 void swapElements(Vector *vector, int a, int b) {
     void *tmp = vector->data[a];
     vector->data[a] = vector->data[b];
     vector->data[b] = tmp;
+}
+
+void deleteElementFromVectorBySwap(Vector *vector, void *ptr) {
+    for (int i = 0; i < vector->size; i++) {
+        if (vector->data[i] == ptr) {
+            swapElements(vector, i, vector->size - 1);
+            popBack(vector);
+            return;
+        }
+    }
 }

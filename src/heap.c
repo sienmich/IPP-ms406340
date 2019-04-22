@@ -10,8 +10,12 @@ typedef struct Heap {
 Heap* newHeap( bool (*cmp)(void *, void *) ) {
     Heap *heap;
     if (!(heap = malloc(sizeof(Heap))))
-        exit(1);
-    heap->v = newVector();
+        return NULL;
+
+    if (!(heap->v = newVector())) {
+        free(heap);
+        return NULL;
+    }
     heap->cmp = cmp;
     return heap;
 }
@@ -31,8 +35,10 @@ static int son(int x) {
 }
 
 
-void insert(Heap *heap, void *ptr) {
-    pushBack(heap, ptr);
+bool insert(Heap *heap, void *ptr) {
+    if(!pushBack(heap, ptr))
+        return false;
+
     int pos = heap->size - 1;
     while (pos != 0 && heap->cmp(heap->data[parent(pos)], heap->data[pos])) {
 
@@ -40,6 +46,7 @@ void insert(Heap *heap, void *ptr) {
         pos = parent(pos);
     }
 
+    return true;
 }
 
 void* pop(Heap *heap) {
@@ -69,7 +76,6 @@ void* pop(Heap *heap) {
         left = son(pos);
         right = left + 1;
     }
-
 
     return res;
 }

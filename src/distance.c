@@ -10,7 +10,7 @@ typedef struct Distance {
 Distatnce *newDistance(City *city) {
     Distatnce *ptr;
     if (!(ptr = malloc(sizeof(Distatnce))))
-        exit(1);
+        return NULL;
     ptr->oldestBuiltYear = INT_MIN;
     ptr->length = INT_MAX;
     ptr->city = city;

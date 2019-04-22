@@ -6,17 +6,26 @@
 
 typedef struct Map {
     vector *cities;
-    vector *roads;
+//    vector *roads;
 } Map;
 
 
 Map* newMap(void) {
     Map *ptr;
     if (!(ptr = malloc(sizeof(Map))))
-        exit(1);
+        return NULL;
 
-    ptr->cities = newVector();
-    ptr->roads = newVector();
+    if (!(ptr->cities = newVector())) {
+        free(ptr);
+        return NULL;
+    }
+    /*
+    if (!(ptr->roads = newVector())) {
+        deleteVector(ptr->cities);
+        free(ptr);
+        return NULL;
+    }
+    */
 
 	return ptr;
 }
@@ -24,14 +33,26 @@ Map* newMap(void) {
 void deleteMap(Map *map) {
 	if (map == NULL)
         return;
+
+    while(map->cities->size > 0) {
+        deleteCity(map->cities->data[0]);
+        deleteElementFromVectorBySwap(map->cities, map->cities->data[0]);
+    }
+
+    deleteVector(map->cities);
+ //   deleteVector(map->roads);
     free(map);
-    deleteVector(cities);
-    deleteVector(roads);
-    /// dobrze by było też usuwać zawartość
 }
 
-static City* addCity(Map *map, const char *city) {
-    return pushBack(map->cities, newCity(city));
+static bool addCity(Map *map, const char *city) {
+    City *cityStruct = newCity(city);
+    if(!cityStruct)
+        return false;
+    if(!pushBack(map->cities, cityStruct)) {
+        deleteCity(cityStruct);
+        return false;
+    }
+    return true;
 }
 
 /// jak nie ma, to NULL
@@ -47,9 +68,11 @@ static City* findCityFromString(Map *map, const char *city) {
 
 /// jak nie ma, to tworzy nowy
 static City* findCityFromStringOrAdd(Map *map, const char *city) {
-    int res = findCityFromString(map, city);
+    City* res = findCityFromString(map, city);
     if (res == NULL) {
-        return addCity(map, newCity(city));
+        if (addCity(map, city))
+            return data[map->cities->size - 1];
+        return NULL;
     }
     return res;
 }
@@ -58,7 +81,7 @@ static City* findCityFromStringOrAdd(Map *map, const char *city) {
 static City* findRoadFromCities(Map *map, City *city1, City *city2) {
     for (int i = 0; i < city1->roads->size; i++)
     {
-        Road *road= city1->roads->data[i];
+        Road *road = city1->roads->data[i];
         if (road->city1 == city2 || road->city2 == city2)
             return road;
     }
@@ -81,14 +104,49 @@ static City* findRoadFromCities(Map *map, City *city1, City *city2) {
  */
 bool addRoad(Map *map, const char *city1, const char *city2,
              unsigned length, int builtYear) {
-    City *cityStruct1 = findCityFromStringOrAdd(map, city1);
-    City *cityStruct2 = findCityFromStringOrAdd(map, city2);
 
-    Road *road = pushBack(map->roads, newRoad(cityStruct1, cityStruct2, length, builtYear));
-    pushBack(cityStruct1->roads, road);
-    pushBack(cityStruct2->roads, road);
+    City *cityStruct1 = findCityFromStringOrAdd(map, city1);    ///jest szansa, ze dodam miasto i nie cofne tego. trudno
+    City *cityStruct2 = findCityFromStringOrAdd(map, city2);
+    if(!cityStruct1 || !cityStruct2 || cityStruct1 == cityStruct2)
+        return false;
+
+    if(findRoadFromCities(cityStruct1, cityStruct2))
+        return false;
+
+    Road *road = newRoad(cityStruct1, cityStruct2, length, builtYear);
+
+    if(!road)
+        return false;
+
+//    if(!pushBack(map->roads, road)) {
+//       deleteRoad(road);
+//        return false;
+//    }
+    if(!pushBack(cityStruct1->roads, road)) {
+//        popBack(map->roads);
+        deleteRoad(road);
+        return false;
+    }
+    if(!pushBack(cityStruct2->roads, road)) {
+//        popBack(map->roads);
+        popBack(cityStruct1->roads);
+        deleteRoad(road);
+        return false;
+    }
     return true;
 }
+
+static Road* findRoadFromStrings(const char *city1, const char *city2) {
+
+    City *cityStruct1 = findCityFromString(map, city1);
+    City *cityStruct2 = findCityFromString(map, city2);
+
+    if(!cityStruct1 || !cityStruct2 || cityStruct1 == cityStruct2)
+        return NULL;
+
+    return findRoadFromCities(cityStruct1, cityStruct2);
+}
+
 
 /** @brief Modyfikuje rok ostatniego remontu odcinka drogi.
  * Dla odcinka drogi między dwoma miastami zmienia rok jego ostatniego remontu
@@ -104,11 +162,7 @@ bool addRoad(Map *map, const char *city1, const char *city2,
  * drogi rok budowy lub ostatniego remontu.
  */
 bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear) {
-
-    City *cityStruct1 = findCityFromStringOrAdd(map, city1);
-    City *cityStruct2 = findCityFromStringOrAdd(map, city2);
-
-    Road *road = findRoadFromCities(cityStruct1, cityStruct2);
+    Road *road = findRoadFromStrings(city1, city2);
     if (road != NULL)
         if (road->builtYear <= repairYear) {
             road->builtYear = repairYear;
@@ -117,6 +171,34 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear) 
 
     return false;
 }
+
+/** @brief Usuwa odcinek drogi między dwoma różnymi miastami.
+ * Usuwa odcinek drogi między dwoma miastami. Jeśli usunięcie tego odcinka drogi
+ * powoduje przerwanie ciągu jakiejś drogi krajowej, to uzupełnia ją
+ * istniejącymi odcinkami dróg w taki sposób, aby była najkrótsza. Jeśli jest
+ * więcej niż jeden sposób takiego uzupełnienia, to dla każdego wariantu
+ * wyznacza wśród dodawanych odcinków drogi ten, który był najdawniej wybudowany
+ * lub remontowany i wybiera wariant z odcinkiem, który jest najmłodszy.
+ * @param[in,out] map    – wskaźnik na strukturę przechowującą mapę dróg;
+ * @param[in] city1      – wskaźnik na napis reprezentujący nazwę miasta;
+ * @param[in] city2      – wskaźnik na napis reprezentujący nazwę miasta.
+ * @return Wartość @p true, jeśli odcinek drogi został usunięty.
+ * Wartość @p false, jeśli z powodu błędu nie można usunąć tego odcinka drogi:
+ * któryś z parametrów ma niepoprawną wartość, nie ma któregoś z podanych miast,
+ * nie istnieje droga między podanymi miastami, nie da się jednoznacznie
+ * uzupełnić przerwanego ciągu drogi krajowej lub nie udało się zaalokować
+ * pamięci.
+ */
+bool removeRoad(Map *map, const char *city1, const char *city2) {
+    Road *road = findRoadFromStrings(city1, city2);
+    if (road != NULL) {
+        deleteRoad(road);
+        return true;
+    }
+
+    return false;
+}
+
 
 /** @brief Łączy dwa różne miasta drogą krajową.
  * Tworzy drogę krajową pomiędzy dwoma miastami i nadaje jej podany numer.
@@ -141,7 +223,7 @@ bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2) 
     if (cityStruct1 == NULL || cityStruct1 == NULL)
         return false;
 
-    dijikstra(map->cities, map->roads, cityStruct1, cityStruct2);
+    dijikstra(map->cities, cityStruct1, cityStruct2);
 
 
 }
@@ -165,24 +247,7 @@ bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2) 
  */
 bool extendRoute(Map *map, unsigned routeId, const char *city);
 
-/** @brief Usuwa odcinek drogi między dwoma różnymi miastami.
- * Usuwa odcinek drogi między dwoma miastami. Jeśli usunięcie tego odcinka drogi
- * powoduje przerwanie ciągu jakiejś drogi krajowej, to uzupełnia ją
- * istniejącymi odcinkami dróg w taki sposób, aby była najkrótsza. Jeśli jest
- * więcej niż jeden sposób takiego uzupełnienia, to dla każdego wariantu
- * wyznacza wśród dodawanych odcinków drogi ten, który był najdawniej wybudowany
- * lub remontowany i wybiera wariant z odcinkiem, który jest najmłodszy.
- * @param[in,out] map    – wskaźnik na strukturę przechowującą mapę dróg;
- * @param[in] city1      – wskaźnik na napis reprezentujący nazwę miasta;
- * @param[in] city2      – wskaźnik na napis reprezentujący nazwę miasta.
- * @return Wartość @p true, jeśli odcinek drogi został usunięty.
- * Wartość @p false, jeśli z powodu błędu nie można usunąć tego odcinka drogi:
- * któryś z parametrów ma niepoprawną wartość, nie ma któregoś z podanych miast,
- * nie istnieje droga między podanymi miastami, nie da się jednoznacznie
- * uzupełnić przerwanego ciągu drogi krajowej lub nie udało się zaalokować
- * pamięci.
- */
-bool removeRoad(Map *map, const char *city1, const char *city2);
+
 
 /** @brief Udostępnia informacje o drodze krajowej.
  * Zwraca wskaźnik na napis, który zawiera informacje o drodze krajowej. Alokuje

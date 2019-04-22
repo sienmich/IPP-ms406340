@@ -11,7 +11,7 @@ typedef struct Road {
 Road* newRoad(City *city1, City *city2, unsigned length, int builtYear) {
 	Road *ptr;
     if (!(ptr = malloc(sizeof(Road))))
-        exit(1);
+        return NULL;
 
     ptr->city1 = city1;
     ptr->city2 = city2;
@@ -22,6 +22,8 @@ Road* newRoad(City *city1, City *city2, unsigned length, int builtYear) {
 }
 
 void deleteRoad(Road *road) {
+    deleteRoadFromCity(road->city1, road);
+    deleteRoadFromCity(road->city2, road);
 	free(road);
 }
 

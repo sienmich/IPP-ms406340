@@ -9,7 +9,7 @@ Heap* newHeap(bool (*cmp)(void *, void *));
 
 void deleteHeap(Heap *heap);
 
-void insert(Heap *heap, void *ptr);
+bool insert(Heap *heap, void *ptr);
 
 void* pop(Heap *heap);
 
