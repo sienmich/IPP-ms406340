@@ -1,11 +1,15 @@
+#include <stdlib.h>
 
 #include <string.h>
 #include "map.h"
+#include "city.h"
+#include "road.h"
 #include "vector.h"
 #include "route.h"
 
 typedef struct Map {
-    vector *cities;
+    Vector *cities;
+    Vector *routes;
 //    vector *roads;
 } Map;
 
@@ -19,13 +23,17 @@ Map* newMap(void) {
         free(ptr);
         return NULL;
     }
-    /*
-    if (!(ptr->roads = newVector())) {
+
+    if (!(ptr->routes = newVector()) || !resize(ptr->routes, 1000)) {   //lepiej jakis define
         deleteVector(ptr->cities);
         free(ptr);
         return NULL;
     }
-    */
+    for (int i = 0; i < 1000; i++) {
+        ptr->routes->data[i] = NULL;
+    }
+
+
 
 	return ptr;
 }
@@ -40,7 +48,9 @@ void deleteMap(Map *map) {
     }
 
     deleteVector(map->cities);
- //   deleteVector(map->roads);
+
+    deleteVector(map->routes);
+
     free(map);
 }
 
@@ -71,16 +81,15 @@ static City* findCityFromStringOrAdd(Map *map, const char *city) {
     City* res = findCityFromString(map, city);
     if (res == NULL) {
         if (addCity(map, city))
-            return data[map->cities->size - 1];
+            return map->cities->data[map->cities->size - 1];
         return NULL;
     }
     return res;
 }
 
 /// jak nie ma, to NULL
-static City* findRoadFromCities(Map *map, City *city1, City *city2) {
-    for (int i = 0; i < city1->roads->size; i++)
-    {
+static Road* findRoadFromCities(City *city1, City *city2) {
+    for (int i = 0; i < city1->roads->size; i++) {
         Road *road = city1->roads->data[i];
         if (road->city1 == city2 || road->city2 == city2)
             return road;
@@ -118,17 +127,11 @@ bool addRoad(Map *map, const char *city1, const char *city2,
     if(!road)
         return false;
 
-//    if(!pushBack(map->roads, road)) {
-//       deleteRoad(road);
-//        return false;
-//    }
     if(!pushBack(cityStruct1->roads, road)) {
-//        popBack(map->roads);
         deleteRoad(road);
         return false;
     }
     if(!pushBack(cityStruct2->roads, road)) {
-//        popBack(map->roads);
         popBack(cityStruct1->roads);
         deleteRoad(road);
         return false;
@@ -136,8 +139,7 @@ bool addRoad(Map *map, const char *city1, const char *city2,
     return true;
 }
 
-static Road* findRoadFromStrings(const char *city1, const char *city2) {
-
+static Road* findRoadFromStrings(Map *map, const char *city1, const char *city2) {
     City *cityStruct1 = findCityFromString(map, city1);
     City *cityStruct2 = findCityFromString(map, city2);
 
@@ -146,7 +148,6 @@ static Road* findRoadFromStrings(const char *city1, const char *city2) {
 
     return findRoadFromCities(cityStruct1, cityStruct2);
 }
-
 
 /** @brief Modyfikuje rok ostatniego remontu odcinka drogi.
  * Dla odcinka drogi między dwoma miastami zmienia rok jego ostatniego remontu
@@ -162,10 +163,10 @@ static Road* findRoadFromStrings(const char *city1, const char *city2) {
  * drogi rok budowy lub ostatniego remontu.
  */
 bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear) {
-    Road *road = findRoadFromStrings(city1, city2);
+    Road *road = findRoadFromStrings(map, city1, city2);
     if (road != NULL)
         if (road->builtYear <= repairYear) {
-            road->builtYear = repairYear;
+            repairRoadFromRoad(road, repairYear);
             return true;
         }
 
@@ -190,7 +191,7 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear) 
  * pamięci.
  */
 bool removeRoad(Map *map, const char *city1, const char *city2) {
-    Road *road = findRoadFromStrings(city1, city2);
+    Road *road = findRoadFromStrings(map, city1, city2);
     if (road != NULL) {
         deleteRoad(road);
         return true;
@@ -198,7 +199,6 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
 
     return false;
 }
-
 
 /** @brief Łączy dwa różne miasta drogą krajową.
  * Tworzy drogę krajową pomiędzy dwoma miastami i nadaje jej podany numer.
@@ -220,7 +220,10 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
 bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2) {
     City *cityStruct1 = findCityFromString(map, city1);
     City *cityStruct2 = findCityFromString(map, city2);
-    if (cityStruct1 == NULL || cityStruct1 == NULL)
+    if (cityStruct1 == NULL || cityStruct2 == NULL || cityStruct1 == cityStruct2)
+        return false;
+
+    if (map->routes->data[routeId] == NULL)
         return false;
 
     dijikstra(map->cities, cityStruct1, cityStruct2);

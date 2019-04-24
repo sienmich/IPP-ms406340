@@ -1,15 +1,24 @@
 #ifndef __CITY_H__
 #define __CITY_H__
 
-#include <stdbool.h>
-
 typedef struct City City;
+
+#include <stdbool.h>
+#include "vector.h"
+#include "distance.h"
+#include "road.h"
+
+typedef struct City {
+    char *name;
+    Vector *roads;
+    Distance *distance; ///Do dijikstry
+} City;
 
 City* newCity(const char *city);
 
 void deleteCity(City *city);
 
-void pushBackRoad(City *city, Road *road);
+bool pushBackRoad(City *city, Road *road);
 
 void deleteRoadFromCity(City *city, Road *road);
 

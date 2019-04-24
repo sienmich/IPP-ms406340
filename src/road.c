@@ -1,12 +1,7 @@
+#include <stdlib.h>
 #include <stdbool.h>
 #include "road.h"
 #include "city.h"
-
-typedef struct Road {
-	City *city1, *city2;
-	unsigned length;
-	int builtYear;
-} Road;
 
 Road* newRoad(City *city1, City *city2, unsigned length, int builtYear) {
 	Road *ptr;
@@ -27,7 +22,7 @@ void deleteRoad(Road *road) {
 	free(road);
 }
 
-bool repairRoad(Road *road, int repairYear) {
+bool repairRoadFromRoad(Road *road, int repairYear) {
 	road->builtYear = repairYear;
 	return true;
 }

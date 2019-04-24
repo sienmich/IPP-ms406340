@@ -23,6 +23,18 @@ set(CMAKE_C_FLAGS "-std=c11 -Wall -Wextra")
 set(SOURCE_FILES
     src/map.c
     src/map.h
+    src/city.c
+    src/city.h
+    src/road.c
+    src/road.h
+    src/distance.c
+    src/distance.h
+    src/route.c
+    src/route.h
+    src/vector.c
+    src/vector.h
+    src/heap.c
+    src/heap.h
     src/map_main.c)
 
 # Wskazujemy plik wykonywalny.

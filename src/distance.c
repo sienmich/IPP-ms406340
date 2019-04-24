@@ -1,15 +1,17 @@
+#include <stdlib.h>
 #include <limits.h>
-#include "route.h"
+#include "distance.h"
+
 
 typedef struct Distance {
     int oldestBuiltYear;
     int length;
     City *city;
-} Distatnce;
+} Distance;
 
-Distatnce *newDistance(City *city) {
-    Distatnce *ptr;
-    if (!(ptr = malloc(sizeof(Distatnce))))
+Distance *newDistance(City *city) {
+    Distance *ptr;
+    if (!(ptr = malloc(sizeof(Distance))))
         return NULL;
     ptr->oldestBuiltYear = INT_MIN;
     ptr->length = INT_MAX;
@@ -18,8 +20,8 @@ Distatnce *newDistance(City *city) {
     return ptr;
 }
 
-static void deleteDistatnce(Distatnce * distatnce) {
-    free(distatnce);
+static void deleteDistance(Distance * distance) {
+    free(distance);
 }
 
 bool cmp(Distance *a, Distance *b) {
@@ -28,7 +30,7 @@ bool cmp(Distance *a, Distance *b) {
     return a->length > b->length;
 }
 
-Distatnce *sumOfDistanceAndRoad(Distance *a, Road *b) {
+Distance *sumOfDistanceAndRoad(Distance *a, Road *b) {
     Distance *distance = newDistance(otherCity(b, a->city));
 
     distance->length = a->length + b->length;

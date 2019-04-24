@@ -1,17 +1,19 @@
 #ifndef __DISTANCE_H__
 #define __DISTANCE_H__
 
+typedef struct Distance Distance;
 
+#include "road.h"
+#include "city.h"
+#include "route.h"
 
-typedef struct Distance Distatnce;
+Distance *newDistance(City *city);
 
-Distatnce *newDistance(City *city);
-
-void deleteDistatnce(Distatnce * distatnce);
+void deleteDistance(Distance *distance);
 
 bool cmp(Distance *a, Distance *b);
 
-Distatnce *sumOfDistanceAndRoad(Distance *a, Road *b);
+Distance *sumOfDistanceAndRoad(Distance *a, Road *b);
 
 
 #endif /* __DISTANCE_H__ */

@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "heap.h"
 #include "vector.h"
 
