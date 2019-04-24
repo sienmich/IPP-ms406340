@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "road.h"
 #include "city.h"
 
@@ -33,3 +34,10 @@ City *otherCity(Road *road, City *city) {
     return city2;
 }
 
+char *RoadToString(Road *road) {
+    char* buffer;
+    if(!(buffer = malloc(50 * sizeof(char))))   ///zmien
+        return NULL;
+    sprintf(buffer, ";%d;%d", road->length, road->builtYear);
+    return buffer;
+}

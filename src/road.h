@@ -21,5 +21,6 @@ bool repairRoadFromRoad(Road *Road, int repairYear);
 
 City *otherCity(Road *road, City *city);
 
+char *RoadToString(Road *road);
 
 #endif /* __ROAD_H__ */
