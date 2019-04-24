@@ -1,12 +1,5 @@
 #include <stdlib.h>
 #include "heap.h"
-#include "vector.h"
-
-/// Na górze jest minimum
-typedef struct Heap {
-    Vector *v;
-    bool (*cmp)(void *, void *); /// a >= b
-} Heap;
 
 Heap* newHeap( bool (*cmp)(void *, void *) ) {
     Heap *heap;
@@ -37,11 +30,11 @@ static int son(int x) {
 
 
 bool insert(Heap *heap, void *ptr) {
-    if(!pushBack(heap, ptr))
+    if(!pushBack(heap->v, ptr))
         return false;
 
-    int pos = heap->size - 1;
-    while (pos != 0 && heap->cmp(heap->data[parent(pos)], heap->data[pos])) {
+    int pos = heap->v->size - 1;
+    while (pos != 0 && heap->cmp(heap->v->data[parent(pos)], heap->v->data[pos])) {
 
         swapElements(heap->v, pos, parent(pos));
         pos = parent(pos);
@@ -58,14 +51,14 @@ void* pop(Heap *heap) {
     while (left < heap->v->size) {
 
         if (left == heap->v->size - 1 || heap->cmp(heap->v->data[right], heap->v->data[left]) ) {//prawy juz jest poza
-            if(heap->cmp(heap->data[pos], heap->data[left])) {
+            if(heap->cmp(heap->v->data[pos], heap->v->data[left])) {
                 swapElements(heap->v, left, pos);
                 pos = left;
             }
 
         }
         else {
-            if(heap->cmp(heap->data[pos], heap->data[right])) {
+            if(heap->cmp(heap->v->data[pos], heap->v->data[right])) {
                 swapElements(heap->v, right, pos);
                 pos = right;
             }

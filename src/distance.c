@@ -3,24 +3,23 @@
 #include "distance.h"
 
 
-typedef struct Distance {
-    int oldestBuiltYear;
-    int length;
-    City *city;
-} Distance;
+void clearDistance(Distance *distance, City *city, Road *road) {
+    distance->oldestBuiltYear = INT_MIN;
+    distance->length = INT_MAX;
+    distance->city = city;
+    distance->road = road;
+}
 
-Distance *newDistance(City *city) {
+Distance *newDistance(City *city, Road *road) {
     Distance *ptr;
     if (!(ptr = malloc(sizeof(Distance))))
         return NULL;
-    ptr->oldestBuiltYear = INT_MIN;
-    ptr->length = INT_MAX;
-    ptr->city = city;
 
+    clearDistance(ptr, city, road);
     return ptr;
 }
 
-static void deleteDistance(Distance * distance) {
+void deleteDistance(Distance *distance) {
     free(distance);
 }
 
@@ -31,10 +30,28 @@ bool cmp(Distance *a, Distance *b) {
 }
 
 Distance *sumOfDistanceAndRoad(Distance *a, Road *b) {
-    Distance *distance = newDistance(otherCity(b, a->city));
+    Distance *distance = newDistance(otherCity(b, a->city), b);
+    if (!distance)
+        return NULL;
 
     distance->length = a->length + b->length;
-    distance->oldestBuiltYear = max(a->oldestBuiltYear, b->builtYear);
+    distance->oldestBuiltYear = a->oldestBuiltYear > b->builtYear ? a->oldestBuiltYear : b->builtYear;
 
     return distance;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

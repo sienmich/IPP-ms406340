@@ -7,7 +7,19 @@ typedef struct Distance Distance;
 #include "city.h"
 #include "route.h"
 
-Distance *newDistance(City *city);
+
+typedef struct Distance {
+    int oldestBuiltYear;
+    int length;
+    City *city;
+    Road *road;
+} Distance;
+
+
+Distance *newDistance(City *city, Road *road);
+
+void clearDistance(Distance *distance, City *city, Road *road);
+
 
 void deleteDistance(Distance *distance);
 

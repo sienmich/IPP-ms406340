@@ -2,14 +2,12 @@
 #include <string.h>
 #include "city.h"
 
-
-
 City *newCity(const char *name) {
+
     City *ptr;
     if (!(ptr = malloc(sizeof(City))))
         return NULL;
 
-    ptr->distance = NULL;
     if (!(ptr->roads = newVector())) {
         free(ptr);
         return NULL;
@@ -24,11 +22,16 @@ City *newCity(const char *name) {
     strcpy(nameCopy, name);
     ptr->name = nameCopy;
 
-    return ptr;
-}
 
-Distance *createDistance(City *city) {
-    return city->distance = newDistance(city);
+    ptr->distance = newDistance(ptr, NULL);
+    if(!ptr->distance) {
+        free(ptr->name);
+        deleteVector(ptr->roads);
+        free(ptr);
+        return NULL;
+    }
+
+    return ptr;
 }
 
 void deleteCity(City *city){
@@ -42,9 +45,13 @@ void deleteCity(City *city){
 }
 
 bool pushBackRoad(City *city, Road *road) {
-    return pushBack(roads, road);
+    return pushBack(city->roads, road);
 }
 
 void deleteRoadFromCity(City *city, Road *road) {
     deleteElementFromVectorBySwap(city->roads, road);
 }
+
+
+
+

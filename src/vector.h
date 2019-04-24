@@ -1,6 +1,8 @@
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
 
+#include <stdbool.h>
+
 typedef struct Vector {
     int maxSize;
     int size;

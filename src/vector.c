@@ -14,7 +14,7 @@ Vector* newVector() {
 }
 
 bool resize(Vector *vector, int newSize) {
-	void **tmp = realloc(vector->data, vector->maxSize * sizeof(*void));
+	void **tmp = realloc(vector->data, newSize * sizeof(void *));
 	if(tmp == NULL)
         return false;
 
@@ -41,7 +41,7 @@ bool pushBack(Vector *vector, void *ptr) {
 void* popBack(Vector *vector) {
 	if (vector->size > 0)
         vector->size--;
-    return vector->data[size];
+    return vector->data[vector->size];
 }
 
 /// trzeba samemu usuwać rzeczy, na które były wskaźniki

@@ -10,12 +10,12 @@ typedef struct Route {
     int idx;
 } Route;
 
-Route* newRoute(int idx);
+Route* nRoute(int idx);
 
 void deleteRoute(Route *route);
 
+char* RouteToString(Route *route);
 
-
-void dijikstra(Vector *cities, City *cityStruct1, City *cityStruct2);
+Route* dijikstra(Vector *cities, City *source, City *target);
 
 #endif /* __ROUTE_H__ */

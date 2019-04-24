@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <string.h>
 #include "map.h"
@@ -10,7 +11,6 @@
 typedef struct Map {
     Vector *cities;
     Vector *routes;
-//    vector *roads;
 } Map;
 
 
@@ -23,6 +23,7 @@ Map* newMap(void) {
         free(ptr);
         return NULL;
     }
+
 
     if (!(ptr->routes = newVector()) || !resize(ptr->routes, 1000)) {   //lepiej jakis define
         deleteVector(ptr->cities);
@@ -56,8 +57,9 @@ void deleteMap(Map *map) {
 
 static bool addCity(Map *map, const char *city) {
     City *cityStruct = newCity(city);
-    if(!cityStruct)
+    if(!cityStruct) {
         return false;
+    }
     if(!pushBack(map->cities, cityStruct)) {
         deleteCity(cityStruct);
         return false;
@@ -114,7 +116,7 @@ static Road* findRoadFromCities(City *city1, City *city2) {
 bool addRoad(Map *map, const char *city1, const char *city2,
              unsigned length, int builtYear) {
 
-    City *cityStruct1 = findCityFromStringOrAdd(map, city1);    ///jest szansa, ze dodam miasto i nie cofne tego. trudno
+    City *cityStruct1 = findCityFromStringOrAdd(map, city1);    ///jest szansa, ze dodam miasto i nie cofne tego. Zmien to
     City *cityStruct2 = findCityFromStringOrAdd(map, city2);
     if(!cityStruct1 || !cityStruct2 || cityStruct1 == cityStruct2)
         return false;
@@ -200,6 +202,7 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
     return false;
 }
 
+
 /** @brief Łączy dwa różne miasta drogą krajową.
  * Tworzy drogę krajową pomiędzy dwoma miastami i nadaje jej podany numer.
  * Wśród istniejących odcinków dróg wyszukuje najkrótszą drogę. Jeśli jest
@@ -223,12 +226,17 @@ bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2) 
     if (cityStruct1 == NULL || cityStruct2 == NULL || cityStruct1 == cityStruct2)
         return false;
 
-    if (map->routes->data[routeId] == NULL)
+    if (map->routes->data[routeId])
         return false;
 
-    dijikstra(map->cities, cityStruct1, cityStruct2);
+    Route *res = dijikstra(map->cities, cityStruct2, cityStruct1);
+    if (res) {
+        res->idx = routeId;
+        map->routes->data[routeId] = res;
+        return true;
+    }
 
-
+    return false;
 }
 
 /** @brief Wydłuża drogę krajową do podanego miasta.
@@ -248,9 +256,9 @@ bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2) 
  * wyznaczyć nowego fragmentu drogi krajowej lub nie udało się zaalokować
  * pamięci.
  */
-bool extendRoute(Map *map, unsigned routeId, const char *city);
+bool extendRoute(Map *map, unsigned routeId, const char *city) {
 
-
+}
 
 /** @brief Udostępnia informacje o drodze krajowej.
  * Zwraca wskaźnik na napis, który zawiera informacje o drodze krajowej. Alokuje
@@ -267,4 +275,6 @@ bool extendRoute(Map *map, unsigned routeId, const char *city);
  * @param[in] routeId    – numer drogi krajowej.
  * @return Wskaźnik na napis lub NULL, gdy nie udało się zaalokować pamięci.
  */
-char const* getRouteDescription(Map *map, unsigned routeId);
+char const* getRouteDescription(Map *map, unsigned routeId) {
+    return RouteToString(map->routes->data[routeId]);
+}

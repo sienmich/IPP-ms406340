@@ -7,11 +7,15 @@
 
 #include <assert.h>
 
+#include <stdio.h>
 int main() {
+
+
   char const* str;
 
   Map* m = newMap();
   assert(m);
+
 
   assert(addRoad(m, "Alinów", "Bór", 1, 2020));
   assert(addRoad(m, "Bór", "Cielińsk-Niekłańsk", 2, 2020));
@@ -36,6 +40,7 @@ int main() {
   assert(newRoute(m, 10, "Alinów", "Emiliew"));
 
   str = getRouteDescription(m, 10);
+  printf("%s\n", str);
   assert(strcmp(str, "10;Alinów;1;2020;Bór;2;2020;Cielińsk-Niekłańsk;4;2021;Emiliew") == 0);
   free((void *)str);
 

@@ -2,8 +2,13 @@
 #define __HEAP_H__
 
 #include <stdbool.h>
+#include "vector.h"
 
-typedef struct Heap Heap;
+/// Na górze jest minimum
+typedef struct Heap {
+    Vector *v;
+    bool (*cmp)(void *, void *); /// a >= b
+} Heap;
 
 Heap* newHeap(bool (*cmp)(void *, void *));
 
