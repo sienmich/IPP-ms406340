@@ -22,8 +22,46 @@ Road* newRoad(City *city1, City *city2, unsigned length, int builtYear) {
     return ptr;
 }
 
-void deleteRoad(Road *road) {
+bool deleteRoad(Road *road, Vector *cities, Vector *routes) {
+    Vector *altRoutes = newVector();
+    if (!altRoutes)
+        return false;
 
+    for (int i = 0; i < road->routes->size; i++) {
+        Route *alt = bypass(cities, road->routes->data[i], road);
+
+        if (!alt)
+            break;
+
+        if (!pushBack(altRoutes, alt)) {
+            deleteRoute(alt);
+            break;
+        }
+    }
+
+    if (road->routes->size != altRoutes->size) {
+        for (int i = 0; i < altRoutes->size; i++)
+            deleteRoute(altRoutes->data[i]);
+        deleteVector(altRoutes);
+        return false;
+    }
+
+    for (int i = 0; i < altRoutes->size; i++) {
+        deleteRoute(road->routes->data[i]);
+        Route *r = altRoutes->data[i];
+        road->routes->data[i] = r;
+        routes->data[r->idx] = r;
+    }
+
+    deleteVector(altRoutes);
+
+    deleteRoadUnsafe(road);
+
+	return true;
+}
+
+void deleteRoadUnsafe(Road *road) {
+    deleteVector(road->routes);
     deleteRoadFromCity(road->city1, road);
     deleteRoadFromCity(road->city2, road);
 	free(road);

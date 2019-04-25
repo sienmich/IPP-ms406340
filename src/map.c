@@ -43,14 +43,14 @@ void deleteMap(Map *map) {
 	if (map == NULL)
         return;
 
-    while(map->cities->size > 0) {
-        deleteCity(map->cities->data[0]);
-        deleteElementFromVectorBySwap(map->cities, map->cities->data[0]);
-    }
-
-    deleteVector(map->cities);
-
+    for (int i = 0; i < map->routes->size; i++)
+        deleteRoute(map->routes->data[i]);
     deleteVector(map->routes);
+
+
+    for (int i = 0; i < map->cities->size; i++)
+        deleteCity(map->cities->data[i]);
+    deleteVector(map->cities);
 
     free(map);
 }
@@ -130,12 +130,12 @@ bool addRoad(Map *map, const char *city1, const char *city2,
         return false;
 
     if(!pushBack(cityStruct1->roads, road)) {
-        deleteRoad(road);
+        deleteRoadUnsafe(road);
         return false;
     }
     if(!pushBack(cityStruct2->roads, road)) {
         popBack(cityStruct1->roads);
-        deleteRoad(road);
+        deleteRoadUnsafe(road);
         return false;
     }
     return true;
@@ -195,8 +195,7 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear) 
 bool removeRoad(Map *map, const char *city1, const char *city2) {
     Road *road = findRoadFromStrings(map, city1, city2);
     if (road != NULL) {
-        deleteRoad(road);
-        return true;
+        return deleteRoad(road, map->cities, map->routes);
     }
 
     return false;
@@ -229,7 +228,7 @@ bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2) 
     if (map->routes->data[routeId])
         return false;
 
-    Route *res = dijikstra(map->cities, cityStruct2, cityStruct1);
+    Route *res = dijikstra(map->cities, cityStruct1, cityStruct2, NULL, NULL);
     if (res) {
         res->idx = routeId;
         map->routes->data[routeId] = res;
@@ -257,7 +256,32 @@ bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2) 
  * pamięci.
  */
 bool extendRoute(Map *map, unsigned routeId, const char *city) {
+    City *cityStruct = findCityFromString(map, city);
+    if (!cityStruct)
+        return false;
 
+    Route *r = map->routes->data[routeId];
+    if (!r)
+        return false;
+
+    Route *extention = dijikstra(map->cities, r->cities->data[r->cities->size - 1], cityStruct, NULL, r);
+
+    Route *res = nRoute(routeId);
+    addRoute(res, r, 0, r->roads->size);
+    addRoute(res, extention, 0, extention->roads->size);
+    pushBack(res->cities, extention->cities->data[extention->cities->size - 1]);
+
+    deleteRoute(extention);
+
+    if (valid(res)) {
+        deleteRoute(r);
+        map->routes->data[routeId] = res;
+        return true;
+    }
+    else {
+        deleteRoute(res);
+        return false;
+    }
 }
 
 /** @brief Udostępnia informacje o drodze krajowej.

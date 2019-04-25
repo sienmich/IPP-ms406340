@@ -36,7 +36,7 @@ City *newCity(const char *name) {
 
 void deleteCity(City *city){
     while(city->roads->size > 0) {
-        deleteRoad(city->roads->data[0]);
+        deleteRoadUnsafe(city->roads->data[0]);
     }
     deleteVector(city->roads);
     deleteDistance(city->distance);

@@ -65,3 +65,11 @@ void deleteElementFromVectorBySwap(Vector *vector, void *ptr) {
         }
     }
 }
+
+bool pushBackAll(Vector *vector, Vector *more) {
+    for (int i = 0; i < more->size; i++) {
+        if(!pushBack(vector, more->data[i]))
+            return false;
+    }
+    return true;
+}

@@ -20,7 +20,6 @@ Distance *newDistance(City *city, Road *road);
 
 void clearDistance(Distance *distance, City *city, Road *road);
 
-
 void deleteDistance(Distance *distance);
 
 bool cmp(Distance *a, Distance *b);

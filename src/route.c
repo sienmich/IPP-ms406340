@@ -100,7 +100,7 @@ char* RouteToString(Route *route) {
     return res;
 }
 
-Route* dijikstra(Vector *cities, City *source, City *target) {
+Route* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route *avoid2) {
     bool ok = true;
 
     Heap *heap = newHeap(cmp);
@@ -110,7 +110,15 @@ Route* dijikstra(Vector *cities, City *source, City *target) {
     for (int i = 0; i < cities->size; i++)
         clearDistance(((City *)cities->data[i])->distance, cities->data[i], NULL);
 
-    Distance *start = source->distance;
+    if (avoid2)
+        for (int i = 0; i < avoid2->cities->size; i++) {
+            City *c = avoid2->cities->data[i];
+            if (c != source && c != target)
+                c->distance->length = 0;
+        }
+
+
+    Distance *start = target->distance;
     start->length = 0;
     start->oldestBuiltYear = INT_MAX;
     if(!insert(heap, start))
@@ -125,6 +133,9 @@ Route* dijikstra(Vector *cities, City *source, City *target) {
         for (int i = 0; i < city->roads->size; i++) {
             Road *road = city->roads->data[i];
             City *nextCity = otherCity(road, city);
+
+            if (road == avoid)
+                continue;
 
             Distance *alt = sumOfDistanceAndRoad(distance, road);
             if(alt == NULL) {
@@ -153,12 +164,17 @@ Route* dijikstra(Vector *cities, City *source, City *target) {
         return NULL;
 
 
-    City *cur = target;
-    while (cur != source) {
+    City *cur = source;
+    while (cur != target) {
 
         if(!pushBack(res->cities, cur))
             ok = false;
         Road *road = cur->distance->road;
+        if (!road) {
+            ok = false;
+            break;
+        }
+
         if(!pushBack(res->roads, road))
             ok = false;
 
@@ -180,13 +196,97 @@ Route* dijikstra(Vector *cities, City *source, City *target) {
     return res;
 }
 
+bool valid(Route *route) {
+return true;
+    for (int i = 0; i < route->cities->size; i++) {
+        City *city = route->cities->data[i];
+        clearDistance(city->distance, city, NULL);
+    }
+    for (int i = 0; i < route->cities->size; i++) {
+        City *city = route->cities->data[i];
+        if (!city->distance->length)
+            return false;
+        city->distance->length = 0;
+    }
+    return true;
+
+}
+
+bool addRoute(Route* route, Route* add, int begin, int end) {
+    bool ok = true;
+    int cs = route->cities->size;
+    int rs = route->roads->size;
+    for (int i = begin; i < end; i++) {
+
+        if(!pushBack(route->cities, add->cities->data[i]))
+            ok = false;
+
+        Road *r = add->roads->data[i];
+        if(!pushBack(route->roads, r))
+            ok = false;
+
+        else if(!pushBack(r->routes,  route))
+            ok = false;
+    }
+    if (!ok) {
+        while (cs != route->cities->size)
+            popBack(route->cities);
+        while (rs != route->roads->size) {
+            Road *r = popBack(route->roads);
+            deleteElementFromVectorBySwap(r->routes, route);
+        }
+        return false;
+    }
+    return true;
+}
 
 
+Route* bypass(Vector *cities, Route* route, Road *road) {
+
+    Route *full = nRoute(route->idx);
+    if(!full)
+        return NULL;
+
+    int i = 0;
+    while (route->roads->data[i] != road)
+        i++;
+
+    if(!addRoute(full, route, 0, i)) {
+        deleteRoute(full);
+        return NULL;
+    }
+
+    City *city1 = route->cities->data[i];
+    City *city2 = route->cities->data[i + 1];
+    Route *alt = dijikstra(cities, city1, city2, road, route);
+
+    if(!alt) {
+        deleteRoute(full);
+        return NULL;
+    }
+
+    if(!addRoute(full, alt, 0, alt->roads->size)) {
+        deleteRoute(alt);
+        deleteRoute(full);
+        return NULL;
+    }
+    deleteRoute(alt);
 
 
+    if(!addRoute(full, route, i + 1, route->roads->size)) {
+        deleteRoute(full);
+        return NULL;
+    }
 
+    pushBack(full->cities, route->cities->data[route->cities->size - 1]);
 
+    if (!valid(full)) {
+        deleteRoute(full);
+        return NULL;
+    }
 
+    return full;
+}
 
 
 
