@@ -22,6 +22,8 @@ void clearDistance(Distance *distance, City *city, Road *road);
 
 void deleteDistance(Distance *distance);
 
+void deleteDistanceFromCity(City *city);
+
 bool cmp(Distance *a, Distance *b);
 
 Distance *sumOfDistanceAndRoad(Distance *a, Road *b);

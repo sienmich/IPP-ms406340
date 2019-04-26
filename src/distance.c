@@ -3,24 +3,27 @@
 #include "distance.h"
 
 
-void clearDistance(Distance *distance, City *city, Road *road) {
-    distance->oldestBuiltYear = INT_MIN;
-    distance->length = INT_MAX;
-    distance->city = city;
-    distance->road = road;
-}
-
 Distance *newDistance(City *city, Road *road) {
     Distance *ptr;
     if (!(ptr = malloc(sizeof(Distance))))
         return NULL;
 
-    clearDistance(ptr, city, road);
+    ptr->oldestBuiltYear = INT_MAX;
+    ptr->length = 0;
+    ptr->city = city;
+    ptr->road = road;
+
     return ptr;
 }
 
 void deleteDistance(Distance *distance) {
-    free(distance);
+    if (distance)
+        free(distance);
+}
+
+void deleteDistanceFromCity(City *city) {
+    deleteDistance(city->distance);
+    city->distance = NULL;
 }
 
 bool cmp(Distance *a, Distance *b) {

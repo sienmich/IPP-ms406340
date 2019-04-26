@@ -30,6 +30,7 @@ Map* newMap(void) {
         free(ptr);
         return NULL;
     }
+    ptr->routes->size = 1000;
     for (int i = 0; i < 1000; i++) {
         ptr->routes->data[i] = NULL;
     }

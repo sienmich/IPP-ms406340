@@ -23,13 +23,15 @@ City *newCity(const char *name) {
     ptr->name = nameCopy;
 
 
-    ptr->distance = newDistance(ptr, NULL);
+    ptr->distance = NULL;
+    /*newDistance(ptr, NULL);
     if(!ptr->distance) {
         free(ptr->name);
         deleteVector(ptr->roads);
         free(ptr);
         return NULL;
     }
+    */
 
     return ptr;
 }
@@ -39,7 +41,6 @@ void deleteCity(City *city){
         deleteRoadUnsafe(city->roads->data[0]);
     }
     deleteVector(city->roads);
-    deleteDistance(city->distance);
     free(city->name);
     free(city);
 }

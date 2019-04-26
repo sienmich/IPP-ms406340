@@ -40,8 +40,6 @@ int main() {
 
 
   assert(newRoute(m, 10, "Alinów", "Emiliew"));
-  deleteMap(m);
-  return 0;
 /*
   assert(newRoute(m, 3, "Alinów", "Dąb Stary"));
   printf("%s\n", getRouteDescription(m, 3));

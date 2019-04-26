@@ -32,6 +32,8 @@ Route* nRoute(int idx) {
 
 
 void deleteRoute(Route *route) {
+    if (!route)
+        return;
     deleteVector(route->cities);
     for (int i = 0; i < route->roads->size; i++) {
         Road *road = route->roads->data[i];
@@ -107,32 +109,37 @@ Route* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route 
     if (heap == NULL)
         return NULL;
 
-    for (int i = 0; i < cities->size; i++)
-        clearDistance(((City *)cities->data[i])->distance, cities->data[i], NULL);
-
     if (avoid2)
         for (int i = 0; i < avoid2->cities->size; i++) {
             City *c = avoid2->cities->data[i];
             if (c != source && c != target)
-                c->distance->length = 0;
+                if(!(c->distance = newDistance(c, NULL)))
+                    ok = false;
         }
 
 
-    Distance *start = target->distance;
-    start->length = 0;
-    start->oldestBuiltYear = INT_MAX;
-    if(!insert(heap, start))
+    Distance *start = newDistance(target, NULL);
+    if (!start)
+        ok = false;
+
+    else if(!insert(heap, start))
         ok = false;
 
     while (!empty(heap)) {
         Distance *distance = pop(heap);
         City *city = distance->city;
-        if (distance != city->distance)
+
+        if (city->distance) {
+            deleteDistance(distance);
             continue;
+        }
+        city->distance = distance;
 
         for (int i = 0; i < city->roads->size; i++) {
             Road *road = city->roads->data[i];
             City *nextCity = otherCity(road, city);
+            if (nextCity->distance)
+                continue;
 
             if (road == avoid)
                 continue;
@@ -143,25 +150,22 @@ Route* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route 
                 break;
             }
 
-            if (cmp(nextCity->distance, alt)) { ///nowa droga jest lepsza
-                deleteDistance(nextCity->distance);
-                nextCity->distance = alt;
-                if(!insert(heap, alt)) {
-                    ok = false;
-                    break;
-                }
+            if(!insert(heap, alt)) {
+                ok = false;
+                break;
             }
         }
     }
-
     deleteHeap(heap);
 
-    if (!ok)
-        return NULL;
+    Route *res;
 
-    Route *res = nRoute(0);
-    if(!res)
+    if (!ok || !(res = nRoute(0))) {
+        for (int i = 0; i < cities->size; i++)
+            deleteDistanceFromCity(cities->data[i]);
+
         return NULL;
+    }
 
 
     City *cur = source;
@@ -178,37 +182,40 @@ Route* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route 
         if(!pushBack(res->roads, road))
             ok = false;
 
-        if(!pushBack(road->routes, res))
+        else if(!pushBack(road->routes, res))
             ok = false;
 
         cur = otherCity(road, cur);
     }
-    if(!pushBack(res->cities, cur))
+    if (!pushBack(res->cities, cur))
         ok = false;
 
+    for (int i = 0; i < cities->size; i++)
+        deleteDistanceFromCity(cities->data[i]);
 
     if (!ok) {
         deleteRoute(res);
         return NULL;
     }
 
-
     return res;
 }
 
 bool valid(Route *route) {
-return true;
+//return true;
+    bool res = true;
+
     for (int i = 0; i < route->cities->size; i++) {
         City *city = route->cities->data[i];
-        clearDistance(city->distance, city, NULL);
+        if (city->distance == 1)
+            res = false;
+        city->distance = 1;
     }
     for (int i = 0; i < route->cities->size; i++) {
         City *city = route->cities->data[i];
-        if (!city->distance->length)
-            return false;
-        city->distance->length = 0;
+        city->distance = NULL;
     }
-    return true;
+    return res;
 
 }
 
