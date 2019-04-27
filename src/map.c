@@ -25,17 +25,15 @@ Map* newMap(void) {
     }
 
 
-    if (!(ptr->routes = newVector()) || !resize(ptr->routes, 1000)) {   //lepiej jakis define
+    if (!(ptr->routes = newVectorWithSize(1000))) {   //lepiej jakis define
         deleteVector(ptr->cities);
         free(ptr);
         return NULL;
     }
-    ptr->routes->size = 1000;
+
     for (int i = 0; i < 1000; i++) {
         ptr->routes->data[i] = NULL;
     }
-
-
 
 	return ptr;
 }

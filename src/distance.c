@@ -21,10 +21,7 @@ void deleteDistance(Distance *distance) {
         free(distance);
 }
 
-void deleteDistanceFromCity(City *city) {
-    deleteDistance(city->distance);
-    city->distance = NULL;
-}
+
 
 bool cmp(Distance *a, Distance *b) {
     if (a->length == b->length)

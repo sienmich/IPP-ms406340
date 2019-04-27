@@ -1,6 +1,11 @@
 #include <stdlib.h>
 #include "heap.h"
 
+typedef struct Heap {
+    Vector *v;
+    bool (*cmp)(void *, void *);
+} Heap;
+
 Heap* newHeap( bool (*cmp)(void *, void *) ) {
     Heap *heap;
     if (!(heap = malloc(sizeof(Heap))))
@@ -14,8 +19,9 @@ Heap* newHeap( bool (*cmp)(void *, void *) ) {
     return heap;
 }
 
-/// trzeba samemu usuwać rzeczy, na które były wskaźniki
 void deleteHeap(Heap *heap) {
+    if (!heap)
+        return;
     deleteVector(heap->v);
     free(heap);
 }
@@ -43,7 +49,14 @@ bool insert(Heap *heap, void *ptr) {
     return true;
 }
 
+bool empty(Heap *heap) {
+    return heap->v->size == 0;
+}
+
 void* pop(Heap *heap) {
+    if (empty(heap))
+        return NULL;
+
     swapElements(heap->v, 0, heap->v->size - 1);
     void *res = popBack(heap->v);
 
@@ -72,9 +85,5 @@ void* pop(Heap *heap) {
     }
 
     return res;
-}
-
-bool empty(Heap *heap) {
-    return heap->v->size == 0;
 }
 

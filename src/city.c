@@ -50,9 +50,12 @@ bool pushBackRoad(City *city, Road *road) {
 }
 
 void deleteRoadFromCity(City *city, Road *road) {
-    deleteElementFromVectorBySwap(city->roads, road);
+    deleteElementFromVector(city->roads, road);
 }
 
-
+void deleteDistanceFromCity(City *city) {
+    deleteDistance(city->distance);
+    city->distance = NULL;
+}
 
 

@@ -37,7 +37,8 @@ void deleteRoute(Route *route) {
     deleteVector(route->cities);
     for (int i = 0; i < route->roads->size; i++) {
         Road *road = route->roads->data[i];
-        deleteElementFromVectorBySwap(road->routes, route);
+        deleteElementFromVector(road->routes, route);
+        deleteElementFromVector(road->routes, route);
     }
     deleteVector(route->roads);
     free(route);
@@ -240,7 +241,7 @@ bool addRoute(Route* route, Route* add, int begin, int end) {
             popBack(route->cities);
         while (rs != route->roads->size) {
             Road *r = popBack(route->roads);
-            deleteElementFromVectorBySwap(r->routes, route);
+            deleteElementFromVector(r->routes, route);
         }
         return false;
     }

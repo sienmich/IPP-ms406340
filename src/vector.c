@@ -2,25 +2,47 @@
 #include "vector.h"
 
 Vector* newVector() {
-    Vector *ptr;
-    if (!(ptr = malloc(sizeof(Vector))))
+    Vector *vector;
+    if (!(vector = malloc(sizeof(Vector))))
         return NULL;
 
-    ptr->maxSize = 0;
-    ptr->size = 0;
-    ptr->data = NULL;
+    vector->maxSize = 0;
+    vector->size = 0;
+    vector->data = NULL;
 
-    return ptr;
+    return vector;
 }
 
-bool resize(Vector *vector, int newSize) {
-	void **tmp = realloc(vector->data, newSize * sizeof(void *));
-	if(tmp == NULL)
+static bool resize(Vector *vector, int newSize) {
+    void **tmp = realloc(vector->data, newSize * sizeof(void *));
+    if(tmp == NULL)
         return false;
 
-	vector->maxSize = newSize;
+    vector->maxSize = newSize;
     vector->data = tmp;
-	return true;
+    return true;
+}
+
+Vector* newVectorWithSize(int size) {
+    Vector *vector = newVector();
+    if (!vector)
+        return NULL;
+
+    if (!resize(vector, size)) {
+        deleteVector(vector);
+        return NULL;
+    }
+
+    vector->size = size;
+
+    return vector;
+}
+
+void deleteVector(Vector *vector) {
+    if (!vector)
+        return;
+    free(vector->data);
+    free(vector);
 }
 
 static bool extend(Vector *vector) {
@@ -39,16 +61,12 @@ bool pushBack(Vector *vector, void *ptr) {
 }
 
 void* popBack(Vector *vector) {
-	if (vector->size > 0)
-        vector->size--;
+    if (!vector->size)
+        return NULL;
+    vector->size--;
     return vector->data[vector->size];
 }
 
-/// trzeba samemu usuwać rzeczy, na które były wskaźniki
-void deleteVector(Vector *vector) {
-    free(vector->data);
-    free(vector);
-}
 
 void swapElements(Vector *vector, int a, int b) {
     void *tmp = vector->data[a];
@@ -56,7 +74,7 @@ void swapElements(Vector *vector, int a, int b) {
     vector->data[b] = tmp;
 }
 
-void deleteElementFromVectorBySwap(Vector *vector, void *ptr) {
+void deleteElementFromVector(Vector *vector, void *ptr) {
     for (int i = 0; i < vector->size; i++) {
         if (vector->data[i] == ptr) {
             swapElements(vector, i, vector->size - 1);
