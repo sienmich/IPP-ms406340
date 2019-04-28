@@ -106,7 +106,7 @@ char* RouteToString(Route *route) {
 Route* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route *avoid2) {
     bool ok = true;
 
-    Heap *heap = newHeap(cmp);
+    Heap *heap = newHeap((bool (*)(void *, void *))cmpDistance);
     if (heap == NULL)
         return NULL;
 
@@ -203,14 +203,14 @@ Route* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route 
 }
 
 bool valid(Route *route) {
-//return true;
     bool res = true;
 
     for (int i = 0; i < route->cities->size; i++) {
         City *city = route->cities->data[i];
-        if (city->distance == 1)
+        if (city->distance)
             res = false;
-        city->distance = 1;
+
+        city->distance = (int*) 1;
     }
     for (int i = 0; i < route->cities->size; i++) {
         City *city = route->cities->data[i];
@@ -296,5 +296,18 @@ Route* bypass(Vector *cities, Route* route, Road *road) {
     return full;
 }
 
+Distance *getDistance(Route *route) {
+    Distance *res = newDistance(NULL, NULL);
+    if (!res)
+        return NULL;
+
+    for (int i = 0; i<route->roads->size; i++) {
+        Road *r = route->roads->data[i];
+        res->length += r->length;
+        if (res->oldestBuiltYear > r->builtYear)
+            res->oldestBuiltYear = r->builtYear;
+    }
+    return res;
+}
 
 

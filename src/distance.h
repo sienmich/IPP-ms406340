@@ -45,7 +45,7 @@ void deleteDistance(Distance *distance);
  * @param [in] b - wskaźnik na drugi dystans
  * @return @p true jeśli dystans @p a jest większy niż dystans @p b, @p false w przeciwnym przypadku
  */
-bool cmp(Distance *a, Distance *b);
+bool cmpDistance(Distance *a, Distance *b);
 
 /** @brief Dodaje drogę do dystansu.
  * Tworzy nowy dystans, który opisuje trasę opisującą dystans @p a z dodaną na koniec drogą @p b.

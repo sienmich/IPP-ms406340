@@ -1,8 +1,21 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "city.h"
 
+static bool validCityName(const char *name) {
+    if (!name[0])
+        return false;
+    for (int i = 0; name[i]; i++) {
+        if (name[i] <= 31 && name[i] >= 0)
+            return false;
+    }
+    return true;
+}
+
 City *newCity(const char *name) {
+    if (!validCityName(name))
+        return NULL;
 
     City *ptr;
     if (!(ptr = malloc(sizeof(City))))
@@ -22,16 +35,7 @@ City *newCity(const char *name) {
     strcpy(nameCopy, name);
     ptr->name = nameCopy;
 
-
     ptr->distance = NULL;
-    /*newDistance(ptr, NULL);
-    if(!ptr->distance) {
-        free(ptr->name);
-        deleteVector(ptr->roads);
-        free(ptr);
-        return NULL;
-    }
-    */
 
     return ptr;
 }
@@ -43,10 +47,6 @@ void deleteCity(City *city){
     deleteVector(city->roads);
     free(city->name);
     free(city);
-}
-
-bool pushBackRoad(City *city, Road *road) {
-    return pushBack(city->roads, road);
 }
 
 void deleteRoadFromCity(City *city, Road *road) {

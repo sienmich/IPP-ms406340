@@ -21,9 +21,7 @@ void deleteDistance(Distance *distance) {
         free(distance);
 }
 
-
-
-bool cmp(Distance *a, Distance *b) {
+bool cmpDistance(Distance *a, Distance *b) {
     if (a->length == b->length)
         return a->oldestBuiltYear < b->oldestBuiltYear;
     return a->length > b->length;

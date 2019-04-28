@@ -12,9 +12,8 @@
 #include "vector.h"
 
 /** @brief Kopiec binarny.
-* Na początku ma długość 0. Kiedy dodejemy na koniec nowy element,
-* ale nie mieści się on w pamięci, alokuję dwa razy większą tablicę.
-* Dzięki temu złożoność czasowa i pamięciowa wektora są liniowe.
+* Każdy wierzchołek kopca jest mniejszy niż jego synowie, czyli minimalny wierzchołek jest w korzeniu.
+* Modyfikatory działają w czasie logarytmicznym ze względu na aktualną wielkość kopca.
 */
 typedef struct Heap Heap;
 

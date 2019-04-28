@@ -67,11 +67,6 @@ void deleteRoadUnsafe(Road *road) {
 	free(road);
 }
 
-bool repairRoadFromRoad(Road *road, int repairYear) {
-	road->builtYear = repairYear;
-	return true;
-}
-
 City *otherCity(Road *road, City *city) {
     if (city != road->city1)
         return road->city1;

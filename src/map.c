@@ -115,7 +115,7 @@ static Road* findRoadFromCities(City *city1, City *city2) {
 bool addRoad(Map *map, const char *city1, const char *city2,
              unsigned length, int builtYear) {
 
-    City *cityStruct1 = findCityFromStringOrAdd(map, city1);    ///jest szansa, ze dodam miasto i nie cofne tego. Zmien to
+    City *cityStruct1 = findCityFromStringOrAdd(map, city1);
     City *cityStruct2 = findCityFromStringOrAdd(map, city2);
     if(!cityStruct1 || !cityStruct2 || cityStruct1 == cityStruct2)
         return false;
@@ -167,7 +167,7 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear) 
     Road *road = findRoadFromStrings(map, city1, city2);
     if (road != NULL)
         if (road->builtYear <= repairYear) {
-            repairRoadFromRoad(road, repairYear);
+            road->builtYear = repairYear;
             return true;
         }
 
@@ -264,23 +264,54 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
         return false;
 
     Route *extention = dijikstra(map->cities, r->cities->data[r->cities->size - 1], cityStruct, NULL, r);
+    if (!extention)
+        return false;
+    Route *extentionBackwards = dijikstra(map->cities, cityStruct, r->cities->data[0], NULL, r);
+    if (!extentionBackwards) {
+        deleteRoute(extention);
+        return false;
+    }
 
+    Distance *d = getDistance(extention);
+    Distance *dB = getDistance(extentionBackwards);
     Route *res = nRoute(routeId);
-    addRoute(res, r, 0, r->roads->size);
-    addRoute(res, extention, 0, extention->roads->size);
-    pushBack(res->cities, extention->cities->data[extention->cities->size - 1]);
-
-    deleteRoute(extention);
-
-    if (valid(res)) {
-        deleteRoute(r);
-        map->routes->data[routeId] = res;
-        return true;
+    if (d && dB && res) {
+        if (!cmpDistance(d, dB)) {
+            if (!addRoute(res, r, 0, r->roads->size) ||
+                !addRoute(res, extention, 0, extention->roads->size) ||
+                !pushBack(res->cities, extention->cities->data[extention->cities->size - 1])) {
+                deleteRoute(res);
+                res = NULL;
+            }
+            else
+                map->routes->data[routeId] = res;
+        }
+        else {
+            if (!addRoute(res, extentionBackwards, 0, extentionBackwards->roads->size) ||
+                !addRoute(res, r, 0, r->roads->size) ||
+                !pushBack(res->cities, r->cities->data[r->cities->size - 1])) {
+                deleteRoute(res);
+                res = NULL;
+            }
+            else
+                map->routes->data[routeId] = res;
+        }
     }
     else {
         deleteRoute(res);
-        return false;
+        res = NULL;
     }
+
+    deleteDistance(d);
+    deleteDistance(dB);
+    deleteRoute(extention);
+    deleteRoute(extentionBackwards);
+
+    if (res) {
+        deleteRoute(r);
+        return true;
+    }
+    return false;
 }
 
 /** @brief Udostępnia informacje o drodze krajowej.
