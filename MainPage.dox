@@ -8,7 +8,7 @@ Uwaga: aktualna treść zadania znajduje się w [Moodle'u](https://moodle.mimuw.
 ### Opis programu
 
 Tegoroczne duże zadanie polega na zaimplementowaniu operacji na mapach drogowych.
+Dokładny opis wymaganych operacji znajduje się w pliku map.h.
 
-TODO
-
+Ninejszy program na bieżąco przetwarza wszystkie zapytania. Mapę przechowuje w pamięci w postaci grafu, którego wierzchałkami są miasta, a krawędziami są drogi. Droga krajowa to po prostu ciąg kolejnych dróg i miast.
 */
