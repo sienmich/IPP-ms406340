@@ -1,3 +1,10 @@
+/** @file
+ * Implementacja interfejsu klasy przechowującej mapę dróg krajowych.
+ *
+ * @author Łukasz Kamiński <kamis@mimuw.edu.pl>, Marcin Peczarski <marpe@mimuw.edu.pl>, Michał Siennicki <ms406340@students.mimuw.edu.pl>
+ * @copyright Uniwersytet Warszawski
+ * @date 29.04.2019
+ */
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -8,12 +15,26 @@
 #include "vector.h"
 #include "route.h"
 
+/** Stała określająca maksymalny numer trasy
+ */
+#define ROUTES_SIZE 1000
+
+/**
+ * Struktura przechowująca mapę dróg krajowych.
+ */
 typedef struct Map {
-    Vector *cities;
-    Vector *routes;
+    Vector *cities; ///< Wskaźnik na wektor zawierający wszystkie miasta
+    Vector *routes; ///< Wskaźnik na wektor zawierający wszystkie trasy
 } Map;
 
 
+
+/** @brief Tworzy nową strukturę.
+ * Tworzy nową, pustą strukturę niezawierającą żadnych miast, odcinków dróg ani
+ * dróg krajowych.
+ * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
+ * zaalokować pamięci.
+ */
 Map* newMap(void) {
     Map *ptr;
     if (!(ptr = malloc(sizeof(Map))))
@@ -24,20 +45,24 @@ Map* newMap(void) {
         return NULL;
     }
 
-
-    if (!(ptr->routes = newVectorWithSize(1000))) {   //lepiej jakis define
+    if (!(ptr->routes = newVectorWithSize(ROUTES_SIZE))) {
         deleteVector(ptr->cities);
         free(ptr);
         return NULL;
     }
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < ROUTES_SIZE; i++) {
         ptr->routes->data[i] = NULL;
     }
 
 	return ptr;
 }
 
+/** @brief Usuwa strukturę.
+ * Usuwa strukturę wskazywaną przez @p map.
+ * Nic nie robi, jeśli wskaźnik ten ma wartość NULL.
+ * @param[in] map        – wskaźnik na usuwaną strukturę.
+ */
 void deleteMap(Map *map) {
 	if (map == NULL)
         return;
@@ -46,7 +71,6 @@ void deleteMap(Map *map) {
         deleteRoute(map->routes->data[i]);
     deleteVector(map->routes);
 
-
     for (int i = 0; i < map->cities->size; i++)
         deleteCity(map->cities->data[i]);
     deleteVector(map->cities);
@@ -54,22 +78,31 @@ void deleteMap(Map *map) {
     free(map);
 }
 
+/** Dodaje do mapy nowe miasto.
+ * @param[out] map - wskaźnik na mapę
+ * @param[in] city - wskaźnik na napis będący nawą miasta
+ * @return Wartość @p true, jeśli miasto zostało dodane.
+ * Wartość @p false, jeśli wystąpił błąd: nie udało się zaalokować pamięci.
+ */
 static bool addCity(Map *map, const char *city) {
     City *cityStruct = newCity(city);
-    if(!cityStruct) {
+    if (!cityStruct) {
         return false;
     }
-    if(!pushBack(map->cities, cityStruct)) {
+    if (!pushBack(map->cities, cityStruct)) {
         deleteCity(cityStruct);
         return false;
     }
     return true;
 }
 
-/// jak nie ma, to NULL
+/** Znajduje na mapie miasto znając jego nazwę.
+ * @param[in] map - wskaźnik na mapę
+ * @param[in] city - wskaźnik na napis będący nawą miasta
+ * @return Wskaźnik na znalezione miasto lub NULL, gdy nie ma takiego miasta.
+ */
 static City* findCityFromString(Map *map, const char *city) {
-    for (int i = 0; i < map->cities->size; i++)
-    {
+    for (int i = 0; i < map->cities->size; i++) {
         City *elem = map->cities->data[i];
         if (!strcmp(city, elem->name))
             return elem;
@@ -77,7 +110,12 @@ static City* findCityFromString(Map *map, const char *city) {
     return NULL;
 }
 
-/// jak nie ma, to tworzy nowy
+/** Znajduje lub dodaje miasto na mapie.
+ * Jeśli nie istnieje miasto o podanej nazwie, tworzy je.
+ * @param[in,out] map - wskaźnik na mapę
+ * @param[in] city - wskaźnik na napis będący nawą miasta
+ * @return Wskaźnik na miasto o podanej nazwie lub NULL, gdy nie udało się zaalokować pamięci.
+ */
 static City* findCityFromStringOrAdd(Map *map, const char *city) {
     City* res = findCityFromString(map, city);
     if (res == NULL) {
@@ -88,7 +126,11 @@ static City* findCityFromStringOrAdd(Map *map, const char *city) {
     return res;
 }
 
-/// jak nie ma, to NULL
+/** Znajduje drogę łączącą dwa miasta.
+ * @param[in] city1 - wskaźnik na pierwsze miasto
+ * @param[in] city2 - wskaźnik na drugie miasto
+ * @return Wskaźnik na drogę łączącą te miasta lub NULL, gdy taka droga nie istenieje.
+ */
 static Road* findRoadFromCities(City *city1, City *city2) {
     for (int i = 0; i < city1->roads->size; i++) {
         Road *road = city1->roads->data[i];
@@ -97,7 +139,6 @@ static Road* findRoadFromCities(City *city1, City *city2) {
     }
     return NULL;
 }
-
 
 /** @brief Dodaje do mapy odcinek drogi między dwoma różnymi miastami.
  * Jeśli któreś z podanych miast nie istnieje, to dodaje go do mapy, a następnie
@@ -114,37 +155,46 @@ static Road* findRoadFromCities(City *city1, City *city2) {
  */
 bool addRoad(Map *map, const char *city1, const char *city2,
              unsigned length, int builtYear) {
+    if (!length || !builtYear)
+        return false;
 
     City *cityStruct1 = findCityFromStringOrAdd(map, city1);
     City *cityStruct2 = findCityFromStringOrAdd(map, city2);
-    if(!cityStruct1 || !cityStruct2 || cityStruct1 == cityStruct2)
+    if (!cityStruct1 || !cityStruct2 || cityStruct1 == cityStruct2)
         return false;
 
-    if(findRoadFromCities(cityStruct1, cityStruct2))
+    if (findRoadFromCities(cityStruct1, cityStruct2))
         return false;
 
     Road *road = newRoad(cityStruct1, cityStruct2, length, builtYear);
 
-    if(!road)
+    if (!road)
         return false;
 
-    if(!pushBack(cityStruct1->roads, road)) {
+    if (!pushBack(cityStruct1->roads, road)) {
         deleteRoadUnsafe(road);
         return false;
     }
-    if(!pushBack(cityStruct2->roads, road)) {
+    if (!pushBack(cityStruct2->roads, road)) {
         popBack(cityStruct1->roads);
         deleteRoadUnsafe(road);
         return false;
     }
+
     return true;
 }
 
+/** Znajduje drogę łączącą dwa miasta o podanych nazwach.
+ * @param[in] map - wskaźnik na mapę
+ * @param[in] city1 - wskaźnik na nazwę pierwszego miasto
+ * @param[in] city2 - wskaźnik na nazwę drugiego miasto
+ * @return Wskaźnik na drogę łączącą te miasta lub NULL, gdy któreś z tych miast nie istnieje lub taka droga nie istenieje.
+ */
 static Road* findRoadFromStrings(Map *map, const char *city1, const char *city2) {
     City *cityStruct1 = findCityFromString(map, city1);
     City *cityStruct2 = findCityFromString(map, city2);
 
-    if(!cityStruct1 || !cityStruct2 || cityStruct1 == cityStruct2)
+    if (!cityStruct1 || !cityStruct2 || cityStruct1 == cityStruct2)
         return NULL;
 
     return findRoadFromCities(cityStruct1, cityStruct2);
@@ -164,6 +214,9 @@ static Road* findRoadFromStrings(Map *map, const char *city1, const char *city2)
  * drogi rok budowy lub ostatniego remontu.
  */
 bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear) {
+    if (!repairYear)
+        return false;
+
     Road *road = findRoadFromStrings(map, city1, city2);
     if (road != NULL)
         if (road->builtYear <= repairYear) {
@@ -196,10 +249,8 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
     if (road != NULL) {
         return deleteRoad(road, map->cities, map->routes);
     }
-
     return false;
 }
-
 
 /** @brief Łączy dwa różne miasta drogą krajową.
  * Tworzy drogę krajową pomiędzy dwoma miastami i nadaje jej podany numer.
@@ -219,6 +270,9 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
  * się zaalokować pamięci.
  */
 bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2) {
+    if (routeId < 1 || routeId >= ROUTES_SIZE)
+        return false;
+
     City *cityStruct1 = findCityFromString(map, city1);
     City *cityStruct2 = findCityFromString(map, city2);
     if (cityStruct1 == NULL || cityStruct2 == NULL || cityStruct1 == cityStruct2)
@@ -227,9 +281,9 @@ bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2) 
     if (map->routes->data[routeId])
         return false;
 
-    Route *res = dijikstra(map->cities, cityStruct1, cityStruct2, NULL, NULL);
+    Route *res = dijikstraOnlyOne(map->cities, cityStruct1, cityStruct2, NULL, NULL);
     if (res) {
-        res->idx = routeId;
+        res->id = routeId;
         map->routes->data[routeId] = res;
         return true;
     }
@@ -255,6 +309,9 @@ bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2) 
  * pamięci.
  */
 bool extendRoute(Map *map, unsigned routeId, const char *city) {
+    if (routeId < 1 || routeId >= ROUTES_SIZE)
+        return false;
+
     City *cityStruct = findCityFromString(map, city);
     if (!cityStruct)
         return false;
@@ -263,55 +320,17 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
     if (!r)
         return false;
 
-    Route *extention = dijikstra(map->cities, r->cities->data[r->cities->size - 1], cityStruct, NULL, r);
-    if (!extention)
+    for (int i = 0; i < r->cities->size; i++)
+        if (r->cities->data[i] == cityStruct)
+            return false;
+
+    Route *alt = extendBoth(map->cities, r, cityStruct);
+    if (!alt)
         return false;
-    Route *extentionBackwards = dijikstra(map->cities, cityStruct, r->cities->data[0], NULL, r);
-    if (!extentionBackwards) {
-        deleteRoute(extention);
-        return false;
-    }
 
-    Distance *d = getDistance(extention);
-    Distance *dB = getDistance(extentionBackwards);
-    Route *res = nRoute(routeId);
-    if (d && dB && res) {
-        if (!cmpDistance(d, dB)) {
-            if (!addRoute(res, r, 0, r->roads->size) ||
-                !addRoute(res, extention, 0, extention->roads->size) ||
-                !pushBack(res->cities, extention->cities->data[extention->cities->size - 1])) {
-                deleteRoute(res);
-                res = NULL;
-            }
-            else
-                map->routes->data[routeId] = res;
-        }
-        else {
-            if (!addRoute(res, extentionBackwards, 0, extentionBackwards->roads->size) ||
-                !addRoute(res, r, 0, r->roads->size) ||
-                !pushBack(res->cities, r->cities->data[r->cities->size - 1])) {
-                deleteRoute(res);
-                res = NULL;
-            }
-            else
-                map->routes->data[routeId] = res;
-        }
-    }
-    else {
-        deleteRoute(res);
-        res = NULL;
-    }
-
-    deleteDistance(d);
-    deleteDistance(dB);
-    deleteRoute(extention);
-    deleteRoute(extentionBackwards);
-
-    if (res) {
-        deleteRoute(r);
-        return true;
-    }
-    return false;
+    deleteRoute(r);
+    map->routes->data[routeId] = alt;
+    return true;
 }
 
 /** @brief Udostępnia informacje o drodze krajowej.
@@ -330,5 +349,14 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
  * @return Wskaźnik na napis lub NULL, gdy nie udało się zaalokować pamięci.
  */
 char const* getRouteDescription(Map *map, unsigned routeId) {
+    if (routeId < 1 || routeId >= ROUTES_SIZE) {
+        char *res;
+        if (!(res = malloc(sizeof(char))))
+            return NULL;
+        *res = (char) 0;
+        return res;
+    }
+
     return RouteToString(map->routes->data[routeId]);
 }
+

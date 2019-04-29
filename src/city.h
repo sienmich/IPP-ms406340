@@ -22,7 +22,8 @@ typedef struct City City;
 typedef struct City {
     char *name; ///< Wskaźnik na nazwę miasta
     Vector *roads; ///< Wskaźnik na wektor dróg, które wychodzą z miasta
-    Distance *distance; ///< Dystans z miasta do źródła, do algorytmu dijikstry
+    Distance *distance; ///< Wskaźnik na dystans z miasta do źródła, do algorytmu dijikstry
+    Distance *distance2; ///< Wskaźnik na drugi najlepszy dystans z miasta do źródła, do algorytmu dijikstry
 } City;
 
 /** Tworzy nowe miasto.

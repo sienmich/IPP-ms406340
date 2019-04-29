@@ -18,7 +18,7 @@ typedef struct Distance Distance;
  * Wykorzystawana w algytmie Dijikstry.
 */
 typedef struct Distance {
-    int length; ///< Długość najkrótszej trasy
+    long long length; ///< Długość najkrótszej trasy
     int oldestBuiltYear; ///< Najstarszy rok wybudowania lub ostatniego remontu na trasie
     City *city; ///< Wskaźnik na miasto, którego dystans przechowuje
     Road *road; ///< Wskaźnik na ostatni odcinek drogi potrzebny by uzyskać ten dystans
