@@ -73,7 +73,6 @@ void deleteCity(City *city){
     free(city);
 }
 
-
 /** Usuwa drogę z miasta.
  * Usuwa drogę z listy sąsiedztwa danego miasta.
  * Jeśli ta droga nie przechodzi przez to miasto, nic nie robi.

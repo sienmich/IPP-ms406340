@@ -175,8 +175,10 @@ Vector* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route
     if (!start)
         ok = false;
 
-    else if (!insert(heap, start))
+    else if (!insert(heap, start)) {
+        deleteDistance(start);
         ok = false;
+    }
 
     while (!empty(heap)) {
         Distance *distance = pop(heap);
@@ -211,6 +213,7 @@ Vector* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route
 
             if (!insert(heap, alt)) {
                 ok = false;
+                deleteDistance(alt);
                 break;
             }
         }
@@ -267,13 +270,15 @@ Vector* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route
     for (int i = 0; i < cities->size; i++)
         deleteDistanceFromCity(cities->data[i]);
 
-    Vector *v;
+    Vector *v = NULL;
     if (!(v = newVector()))
         ok = false;
     else {
-        pushBack(v, res);
+        if (!pushBack(v, res))
+            ok = false;
         if (res2)
-            pushBack(v, res2);
+            if (!pushBack(v, res2))
+                ok = false;
     }
 
 
