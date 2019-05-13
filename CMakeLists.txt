@@ -33,6 +33,8 @@ set(SOURCE_FILES
     src/route.h
     src/vector.c
     src/vector.h
+    src/stringVector.c
+    src/stringVector.h
     src/heap.c
     src/heap.h
     src/map_main.c)

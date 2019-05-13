@@ -14,6 +14,7 @@
 #include "road.h"
 #include "vector.h"
 #include "route.h"
+#include "stringVector.h"
 
 /** Stała określająca maksymalny numer trasy
  */
@@ -225,6 +226,97 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear) 
         }
 
     return false;
+}
+
+/** Znajduje drogę lub ją dodaje.
+ * Jeśli istnieje już droga łączące podane dwa miasta, to naprawia ją i zwraca.
+ * Jeśli nie ma takiej drogi to ją tworzy.
+ * @param[in,out] map    – wskaźnik na strukturę przechowującą mapę dróg;
+ * @param[in] city1      – wskaźnik na napis reprezentujący nazwę miasta;
+ * @param[in] city2      – wskaźnik na napis reprezentujący nazwę miasta;
+ * @param[in] length     – długość drogi;
+ * @param[in] repairYear – rok ostatniego remontu odcinka drogi.
+ * @return Wskaźnik na szukaną drogę lub NULL, gdy wystąpił błąd:
+ * Nieudana alokacja pamięci lub istnieje droga między tymi miastami
+ * o innej długości lub późniejszym roku budowy / remontu.
+ */
+static Road* findRoadOrAdd(Map *map, const char *city1, const char *city2, int length, int repairYear) {
+    Road *r = findRoadFromStrings(map, city1, city2);
+    if (r) {
+        if ((int) r->length != length)
+            return NULL;
+        if (!repairRoad(map, city1, city2, repairYear))
+            return NULL;
+    }
+    if (!r) {
+        if(!addRoad(map, city1, city2, length, repairYear))
+            return NULL;
+    }
+    return findRoadFromStrings(map, city1, city2);
+}
+
+
+/** Tworzy nową trasę na podstawie opisu.
+ * Opis to ciąg słów postaci "numer drogi krajowej;nazwa miasta;
+ * długość odcinka drogi;rok budowy lub ostatniego remontu;nazwa miasta;
+ * długość odcinka drogi;rok budowy lub ostatniego remontu;nazwa miasta;
+ * …;nazwa miasta".
+ *
+ * Tworzy drogę krajową o podanym numerze i przebiegu.
+ * Jeśli jakieś miasto lub odcinek drogi nie istnieje, to go tworzy.
+ * Jeśli odcinek drogi już istnieje, ale ma wcześniejszy rok budowy
+ * lub ostatniego remontu, to modyfikuje ten atrybut odcinka drogi.
+ * Za błąd uznajemy, jeśli odcinek drogi już istnieje, ale ma inną
+ * długość albo późniejszy rok budowy lub ostatniego remontu.
+ * To polecenie niczego nie wypisuje na standardowe wyjście.
+ *
+ * W przypadku wystąpienia błędu część dróg może zostać dodana na mapę.
+ *
+ * @param[in,out] map - wskaźnik na mapę
+ * @param[in] description - wskaźnik na wektor stringów
+ * @return @p false gdy wystąpił bład lub nieudało się zaalokować pamięci.
+ * @p true w przeciwnym przypadku.
+ */
+bool newRouteFromDescription(Map *map, Vector *description) {
+    if (description->size % 3 != 2)
+        return false;
+
+    int routeId = atoi(((String*) (description->data[0]))->data);
+    if (routeId < 1 || routeId >= ROUTES_SIZE)
+        return false;
+    if (map->routes->data[routeId])
+        return false;
+
+    Route *res = nRoute(routeId);
+    bool ok = true;
+
+    char *lastCity = ((String*) (description->data[1]))->data;
+
+    for (int i = 2; i < description->size && ok; i+=3) {
+        int length  = toInt(description->data[i]);
+        int year    = toInt(description->data[i+1]);
+        char *nextCity = ((String*) (description->data[i+2]))->data;
+        Road *road = findRoadOrAdd(map, lastCity, nextCity, length, year);
+
+        if (!road || !pushBack(res->roads, road))
+            ok = false;
+
+        else if (!pushBack(res->cities, findCityFromString(map, lastCity)))
+            ok = false;
+
+        lastCity = nextCity;
+    }
+
+    if (!pushBack(res->cities, findCityFromString(map, lastCity)))
+        ok = false;
+
+    if (!ok) {
+        deleteRoute(res);
+        return false;
+    }
+
+    map->routes->data[routeId] = res;
+    return true;
 }
 
 /** @brief Usuwa odcinek drogi między dwoma różnymi miastami.

@@ -10,6 +10,7 @@
 #define __MAP_H__
 
 #include <stdbool.h>
+#include "vector.h"
 
 /**
  * Struktura przechowująca mapę dróg krajowych.
@@ -136,5 +137,8 @@ bool removeRoad(Map *map, const char *city1, const char *city2);
  * @return Wskaźnik na napis lub NULL, gdy nie udało się zaalokować pamięci.
  */
 char const* getRouteDescription(Map *map, unsigned routeId);
+
+
+bool newRouteFromDescription(Map *map, Vector *description);
 
 #endif /* __MAP_H__ */
