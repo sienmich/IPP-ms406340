@@ -20,7 +20,7 @@
 typedef struct String {
     int maxSize; ///< Długość zaalokowanej pamięci
     int size; ///< Długość wektora
-	char *data; ///< Wskaźnik na napis
+    char *data; ///< Wskaźnik na napis
 } String;
 
 /** @brief Tworzy nowy string.
@@ -28,7 +28,7 @@ typedef struct String {
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-String* newString();
+String *newString();
 
 /** @brief Usuwa string.
  * Usuwa wektor wskazywany przez @p string.
@@ -44,10 +44,24 @@ void deleteString(String *string);
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-String* newStringRead();
+String *newStringRead();
 
+/** Zwraca liczbę na podstawie ciągu znaków.
+ * Dopuszcza zera wiodące oraz liczby ujemne.
+ * W przypadku błędu konwersji - za długa liczba lub znaki nie będące cyframi
+ * zwraca 0.
+ *
+ * @param[in] s - wskaźnik na stringa
+ * @return wartość liczbowa napisu lub @p 0 w przypadku nieudanej konwersji
+ */
 int toInt(String *s);
 
+/** Zwraca tablicę znaków odpowiadającą stringowi.
+ *
+ * @param[in] s - wskaźnik na stringa
+ * @return wskaźnik na tablicę znaków
+ */
+char *toCharArray(String *s);
 
 /** Wczytuje wiersz.
  * Wczytuje cały wiersz ze standardowego wejścia.
@@ -56,7 +70,7 @@ int toInt(String *s);
  * @return Wskaźnik na wektor stringów lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-Vector* readLine();
+Vector *readLine();
 
 
 #endif /* __STRINGVECTOR_H__ */

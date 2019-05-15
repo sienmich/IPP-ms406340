@@ -22,8 +22,10 @@ typedef struct City City;
 typedef struct City {
     char *name; ///< Wskaźnik na nazwę miasta
     Vector *roads; ///< Wskaźnik na wektor dróg, które wychodzą z miasta
-    Distance *distance; ///< Wskaźnik na dystans z miasta do źródła, do algorytmu dijikstry
-    Distance *distance2; ///< Wskaźnik na drugi najlepszy dystans z miasta do źródła, do algorytmu dijikstry
+    Distance *distance; ///< Wskaźnik na dystans z miasta do źródła,
+    ///< do algorytmu dijikstry
+    Distance *distance2; ///< Wskaźnik na drugi najlepszy dystans
+    ///< z miasta do źródła, do algorytmu dijikstry
 } City;
 
 /** Tworzy nowe miasto.
@@ -33,7 +35,7 @@ typedef struct City {
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci lub nazwa jest niepoprawna.
  */
-City* newCity(const char *name);
+City *newCity(const char *name);
 
 /** Usuwa miasto.
  * Usuwa miasto wskazywane przez @p city.
@@ -56,5 +58,13 @@ void deleteRoadFromCity(City *city, Road *road);
  * @param [in,out] city - wskaźnik na miasto
  */
 void deleteDistanceFromCity(City *city);
+
+/** Sprawdza czy nazwa miasta jest poprawna.
+ * "Miasto reprezentowane jest przez jego nazwę, która jest niepustym napisem w
+ * stylu C niezawierającym kodów od 0 do 31 ani średnika i zakończonym zerem."
+ * @param name - wskaźnik na nazwę
+ * @return @p true jeśli nazwa jest poprawna, @p false w przeciwnym przypadku
+ */
+bool validCityName(const char *name);
 
 #endif /* __CITY_H__ */

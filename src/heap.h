@@ -1,5 +1,5 @@
 /** @file
- * Interfejs klasy kopiec - kolejki priorytetowej opartej na kopcu binarnym
+ * Interfejs klasy kopiec - kolejki priorytetowej na kopcu binarnym
  *
  * @author Michał Siennicki <ms406340@students.mimuw.edu.pl>
  * @copyright Michał Siennicki
@@ -12,9 +12,12 @@
 #include "vector.h"
 
 /** Kopiec binarny.
-* Każdy wierzchołek kopca jest mniejszy niż jego synowie, czyli minimalny wierzchołek jest w korzeniu.
-* Modyfikatory działają w czasie logarytmicznym ze względu na aktualną wielkość kopca.
-* Pamięta wszystkie wierzchołki kopca na wektorze. Wierzchołek 0 to korzeń, 1 to jego lewy syn, 2 to prawy syn itd.
+* Każdy wierzchołek kopca jest mniejszy niż jego synowie,
+* czyli minimalny wierzchołek jest w korzeniu.
+* Modyfikatory działają w czasie logarytmicznym ze względu
+* na aktualną wielkość kopca.
+* Pamięta wszystkie wierzchołki kopca na wektorze.
+* Wierzchołek 0 to korzeń, 1 to jego lewy syn, 2 to prawy syn itd.
 */
 typedef struct Heap Heap;
 
@@ -23,7 +26,7 @@ typedef struct Heap Heap;
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-Heap* newHeap(bool (*cmp)(void *, void *));
+Heap *newHeap(bool (*cmp)(void *, void *));
 
 /** Usuwa kopiec.
  * Usuwa kopiec wskazywany przez @p heap.
@@ -44,7 +47,7 @@ bool insert(Heap *heap, void *ptr);
  * @param[in,out] heap - wskaźnik na kopiec
  * @return Minimalny wskaźnik z kopca lub NULL, gdy kopiec jest pusty.
  */
-void* pop(Heap *heap);
+void *pop(Heap *heap);
 
 /** Sprawdza czy kopiec jest pusty.
  * @param[in,out] heap - wskaźnik na kopiec

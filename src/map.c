@@ -1,7 +1,8 @@
 /** @file
  * Implementacja interfejsu klasy przechowującej mapę dróg krajowych.
  *
- * @author Łukasz Kamiński <kamis@mimuw.edu.pl>, Marcin Peczarski <marpe@mimuw.edu.pl>, Michał Siennicki <ms406340@students.mimuw.edu.pl>
+ * @author Łukasz Kamiński <kamis@mimuw.edu.pl>, Marcin Peczarski <marpe@mimuw.edu.pl>,
+ * Michał Siennicki <ms406340@students.mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski
  * @date 29.04.2019
  */
@@ -29,14 +30,13 @@ typedef struct Map {
 } Map;
 
 
-
 /** @brief Tworzy nową strukturę.
  * Tworzy nową, pustą strukturę niezawierającą żadnych miast, odcinków dróg ani
  * dróg krajowych.
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-Map* newMap(void) {
+Map *newMap(void) {
     Map *ptr;
     if (!(ptr = malloc(sizeof(Map))))
         return NULL;
@@ -56,7 +56,7 @@ Map* newMap(void) {
         ptr->routes->data[i] = NULL;
     }
 
-	return ptr;
+    return ptr;
 }
 
 /** @brief Usuwa strukturę.
@@ -65,7 +65,7 @@ Map* newMap(void) {
  * @param[in] map        – wskaźnik na usuwaną strukturę.
  */
 void deleteMap(Map *map) {
-	if (map == NULL)
+    if (map == NULL)
         return;
 
     for (int i = 0; i < map->routes->size; i++)
@@ -102,7 +102,7 @@ static bool addCity(Map *map, const char *city) {
  * @param[in] city - wskaźnik na napis będący nawą miasta
  * @return Wskaźnik na znalezione miasto lub NULL, gdy nie ma takiego miasta.
  */
-static City* findCityFromString(Map *map, const char *city) {
+static City *findCityFromString(Map *map, const char *city) {
     for (int i = 0; i < map->cities->size; i++) {
         City *elem = map->cities->data[i];
         if (!strcmp(city, elem->name))
@@ -115,10 +115,11 @@ static City* findCityFromString(Map *map, const char *city) {
  * Jeśli nie istnieje miasto o podanej nazwie, tworzy je.
  * @param[in,out] map - wskaźnik na mapę
  * @param[in] city - wskaźnik na napis będący nawą miasta
- * @return Wskaźnik na miasto o podanej nazwie lub NULL, gdy nie udało się zaalokować pamięci.
+ * @return Wskaźnik na miasto o podanej nazwie lub NULL,
+ * gdy nie udało się zaalokować pamięci.
  */
-static City* findCityFromStringOrAdd(Map *map, const char *city) {
-    City* res = findCityFromString(map, city);
+static City *findCityFromStringOrAdd(Map *map, const char *city) {
+    City *res = findCityFromString(map, city);
     if (res == NULL) {
         if (addCity(map, city))
             return map->cities->data[map->cities->size - 1];
@@ -132,7 +133,7 @@ static City* findCityFromStringOrAdd(Map *map, const char *city) {
  * @param[in] city2 - wskaźnik na drugie miasto
  * @return Wskaźnik na drogę łączącą te miasta lub NULL, gdy taka droga nie istenieje.
  */
-static Road* findRoadFromCities(City *city1, City *city2) {
+static Road *findRoadFromCities(City *city1, City *city2) {
     for (int i = 0; i < city1->roads->size; i++) {
         Road *road = city1->roads->data[i];
         if (road->city1 == city2 || road->city2 == city2)
@@ -189,9 +190,10 @@ bool addRoad(Map *map, const char *city1, const char *city2,
  * @param[in] map - wskaźnik na mapę
  * @param[in] city1 - wskaźnik na nazwę pierwszego miasto
  * @param[in] city2 - wskaźnik na nazwę drugiego miasto
- * @return Wskaźnik na drogę łączącą te miasta lub NULL, gdy któreś z tych miast nie istnieje lub taka droga nie istenieje.
+ * @return Wskaźnik na drogę łączącą te miasta lub NULL,
+ * gdy któreś z tych miast nie istnieje lub taka droga nie istenieje.
  */
-static Road* findRoadFromStrings(Map *map, const char *city1, const char *city2) {
+static Road *findRoadFromStrings(Map *map, const char *city1, const char *city2) {
     City *cityStruct1 = findCityFromString(map, city1);
     City *cityStruct2 = findCityFromString(map, city2);
 
@@ -240,7 +242,8 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear) 
  * Nieudana alokacja pamięci lub istnieje droga między tymi miastami
  * o innej długości lub późniejszym roku budowy / remontu.
  */
-static Road* findRoadOrAdd(Map *map, const char *city1, const char *city2, int length, int repairYear) {
+static Road *findRoadOrAdd(Map *map, const char *city1, const char *city2,
+                           int length, int repairYear) {
     Road *r = findRoadFromStrings(map, city1, city2);
     if (r) {
         if ((int) r->length != length)
@@ -249,7 +252,7 @@ static Road* findRoadOrAdd(Map *map, const char *city1, const char *city2, int l
             return NULL;
     }
     if (!r) {
-        if(!addRoad(map, city1, city2, length, repairYear))
+        if (!addRoad(map, city1, city2, length, repairYear))
             return NULL;
     }
     return findRoadFromStrings(map, city1, city2);
@@ -281,21 +284,31 @@ bool newRouteFromDescription(Map *map, Vector *description) {
     if (description->size % 3 != 2)
         return false;
 
-    int routeId = atoi(((String*) (description->data[0]))->data);
+    int routeId = toInt(description->data[0]);
     if (routeId < 1 || routeId >= ROUTES_SIZE)
         return false;
     if (map->routes->data[routeId])
         return false;
 
+    for (int i = 1; i < description->size; i++) {
+        if (i % 3 == 1)
+            if (!validCityName(toCharArray(description->data[i])))
+                return false;
+        if (i % 3 == 0 || i % 3 == 2)
+            if (!toInt(description->data[i]))
+                return false;
+    }
+
     Route *res = nRoute(routeId);
     bool ok = true;
 
-    char *lastCity = ((String*) (description->data[1]))->data;
+    char *lastCity = toCharArray(description->data[1]);
 
-    for (int i = 2; i < description->size && ok; i+=3) {
-        int length  = toInt(description->data[i]);
-        int year    = toInt(description->data[i+1]);
-        char *nextCity = ((String*) (description->data[i+2]))->data;
+    for (int i = 2; i < description->size && ok; i += 3) {
+        int length = toInt(description->data[i]);
+        int year = toInt(description->data[i + 1]);
+        char *nextCity = toCharArray(description->data[i + 2]);
+
         Road *road = findRoadOrAdd(map, lastCity, nextCity, length, year);
 
         if (!road || !pushBack(res->roads, road))
@@ -306,6 +319,7 @@ bool newRouteFromDescription(Map *map, Vector *description) {
 
         lastCity = nextCity;
     }
+
 
     if (!pushBack(res->cities, findCityFromString(map, lastCity)))
         ok = false;
@@ -440,7 +454,7 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
  * @param[in] routeId    – numer drogi krajowej.
  * @return Wskaźnik na napis lub NULL, gdy nie udało się zaalokować pamięci.
  */
-char const* getRouteDescription(Map *map, unsigned routeId) {
+char const *getRouteDescription(Map *map, unsigned routeId) {
     if (routeId < 1 || routeId >= ROUTES_SIZE) {
         char *res;
         if (!(res = malloc(sizeof(char))))

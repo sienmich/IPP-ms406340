@@ -9,16 +9,22 @@
 #include <string.h>
 #include "city.h"
 
+#define UNACCEPTABLE_CHARS 32
+///< Ile początkowych kodów ASCII w nazwie miasta jest niedopuszczalnych
+
 /** Sprawdza czy nazwa miasta jest poprawna.
- * "Miasto reprezentowane jest przez jego nazwę, która jest niepustym napisem w stylu C niezawierającym kodów od 0 do 31 ani średnika i zakończonym zerem."
+ * "Miasto reprezentowane jest przez jego nazwę, która jest niepustym napisem w
+ * stylu C niezawierającym kodów od 0 do 31 ani średnika i zakończonym zerem."
  * @param name - wskaźnik na nazwę
  * @return @p true jeśli nazwa jest poprawna, @p false w przeciwnym przypadku
  */
-static bool validCityName(const char *name) {
+bool validCityName(const char *name) {
     if (!name[0])
         return false;
     for (int i = 0; name[i]; i++) {
-        if (name[i] <= 31 && name[i] >= 0)
+        if (name[i] >= 0 && name[i] < UNACCEPTABLE_CHARS)
+            return false;
+        if (name[i] == ';')
             return false;
     }
     return true;
@@ -64,7 +70,7 @@ City *newCity(const char *name) {
  * Nic nie robi, jeśli wskaźnik ten ma wartość NULL.
  * @param [in, out] city - wskaźnik na miasto, które usuwa
  */
-void deleteCity(City *city){
+void deleteCity(City *city) {
     while (city->roads->size > 0) {
         deleteRoadUnsafe(city->roads->data[0]);
     }

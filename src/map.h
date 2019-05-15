@@ -1,7 +1,8 @@
 /** @file
  * Interfejs klasy przechowującej mapę dróg krajowych
  *
- * @author Łukasz Kamiński <kamis@mimuw.edu.pl>, Marcin Peczarski <marpe@mimuw.edu.pl>
+ * @author Łukasz Kamiński <kamis@mimuw.edu.pl>, Marcin Peczarski <marpe@mimuw.edu.pl>,
+ * Michał Siennicki <ms406340@students.mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski
  * @date 20.03.2019
  */
@@ -23,7 +24,7 @@ typedef struct Map Map;
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-Map* newMap(void);
+Map *newMap(void);
 
 /** @brief Usuwa strukturę.
  * Usuwa strukturę wskazywaną przez @p map.
@@ -136,9 +137,30 @@ bool removeRoad(Map *map, const char *city1, const char *city2);
  * @param[in] routeId    – numer drogi krajowej.
  * @return Wskaźnik na napis lub NULL, gdy nie udało się zaalokować pamięci.
  */
-char const* getRouteDescription(Map *map, unsigned routeId);
+char const *getRouteDescription(Map *map, unsigned routeId);
 
 
+/** Tworzy nową trasę na podstawie opisu.
+ * Opis to ciąg słów postaci "numer drogi krajowej;nazwa miasta;
+ * długość odcinka drogi;rok budowy lub ostatniego remontu;nazwa miasta;
+ * długość odcinka drogi;rok budowy lub ostatniego remontu;nazwa miasta;
+ * …;nazwa miasta".
+ *
+ * Tworzy drogę krajową o podanym numerze i przebiegu.
+ * Jeśli jakieś miasto lub odcinek drogi nie istnieje, to go tworzy.
+ * Jeśli odcinek drogi już istnieje, ale ma wcześniejszy rok budowy
+ * lub ostatniego remontu, to modyfikuje ten atrybut odcinka drogi.
+ * Za błąd uznajemy, jeśli odcinek drogi już istnieje, ale ma inną
+ * długość albo późniejszy rok budowy lub ostatniego remontu.
+ * To polecenie niczego nie wypisuje na standardowe wyjście.
+ *
+ * W przypadku wystąpienia błędu część dróg może zostać dodana na mapę.
+ *
+ * @param[in,out] map - wskaźnik na mapę
+ * @param[in] description - wskaźnik na wektor stringów
+ * @return @p false gdy wystąpił bład lub nieudało się zaalokować pamięci.
+ * @p true w przeciwnym przypadku.
+ */
 bool newRouteFromDescription(Map *map, Vector *description);
 
 #endif /* __MAP_H__ */

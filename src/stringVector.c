@@ -16,7 +16,7 @@
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-String* newString() {
+String *newString() {
     String *string;
     if (!(string = malloc(sizeof(String))))
         return NULL;
@@ -51,7 +51,8 @@ void deleteString(String *string) {
  *
  * @param[in,out] string - wskaźnik na wektor
  * @param[in] newMaxSize - nowy rozmiar alokowanej pamięci
- * @return @p false gdy nie udało się zaalkować pamięci, @p true w przeciwnym przypadku
+ * @return @p false gdy nie udało się zaalkować pamięci,
+ * @p true w przeciwnym przypadku
  */
 static bool reMaxSize(String *string, int newMaxSize) {
     char *tmp = realloc(string->data, newMaxSize * sizeof(char));
@@ -66,7 +67,8 @@ static bool reMaxSize(String *string, int newMaxSize) {
 
 /** Alokuje dwa razy więcej pamięci na wektor.
  * @param string - wskaźnik na wektor
- * @return @p false gdy nie udało się zaalkować pamięci, @p true w przeciwnym przypadku
+ * @return @p false gdy nie udało się zaalkować pamięci,
+ * @p true w przeciwnym przypadku
  */
 static bool extend(String *string) {
     if (string->maxSize == 0)
@@ -99,12 +101,12 @@ static bool pushBackChar(String *string, char c) {
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-String* newStringRead() {
+String *newStringRead() {
     String *s = newString();
     if (!s)
         return NULL;
     char c = 'a';
-    while (c!=EOF && c!=';' && c!='\n') {
+    while (c != EOF && c != ';' && c != '\n') {
 
         if (scanf("%c", &c) == EOF)
             c = EOF;
@@ -116,19 +118,29 @@ String* newStringRead() {
     return s;
 }
 
+/** Zwraca liczbę na podstawie ciągu znaków.
+ * Dopuszcza zera wiodące oraz liczby ujemne.
+ * W przypadku błędu konwersji - za długa liczba lub znaki nie będące cyframi
+ * zwraca 0.
+ *
+ * @param[in] s - wskaźnik na stringa
+ * @return wartość liczbowa napisu lub @p 0 w przypadku nieudanej konwersji
+ */
 int toInt(String *s) {
-    int i = 0, res = 0;
-    while (s->data[i]) {
-        if (s->data[i] < '0' || s->data[i] > '9')
-            return 0;
-
-        if (10 * res + (s->data[i] - '0') < res)
-            return 0;
-
-        res = 10 * res + (s->data[i] - '0');
-        i++;
-    }
+    long long res = strtoll(s->data, NULL, 10);
+    int res2 = res;
+    if (res != (long long) res2)
+        return false;
     return res;
+}
+
+/** Zwraca tablicę znaków odpowiadającą stringowi.
+ *
+ * @param[in] s - wskaźnik na stringa
+ * @return wskaźnik na tablicę znaków
+ */
+char *toCharArray(String *s) {
+    return s->data;
 }
 
 /** Wczytuje wiersz.
@@ -138,7 +150,7 @@ int toInt(String *s) {
  * @return Wskaźnik na wektor stringów lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-Vector* readLine() {
+Vector *readLine() {
     Vector *v = newVector();
     if (!v)
         return NULL;

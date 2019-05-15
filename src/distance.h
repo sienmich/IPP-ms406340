@@ -13,7 +13,6 @@ typedef struct Distance Distance;
 #include "road.h"
 #include "city.h"
 
-
 /** @brief Odległość od źródła do danego miasta.
  * Wykorzystawana w algytmie Dijikstry.
 */

@@ -1,5 +1,5 @@
 /** @file
- * Implementacja interfejsu klasy kopiec - kolejki priorytetowej opartej na kopcu binarnym
+ * Implementacja interfejsu klasy kopiec - kolejki priorytetowej na kopcu binarnym
  *
  * @author Michał Siennicki <ms406340@students.mimuw.edu.pl>
  * @copyright Michał Siennicki
@@ -9,9 +9,12 @@
 #include "heap.h"
 
 /** Kopiec binarny.
-* Każdy wierzchołek kopca jest mniejszy niż jego synowie, czyli minimalny wierzchołek jest w korzeniu.
-* Modyfikatory działają w czasie logarytmicznym ze względu na aktualną wielkość kopca.
-* Pamięta wszystkie wierzchołki kopca na wektorze. Wierzchołek 0 to korzeń, 1 to jego lewy syn, 2 to prawy syn itd.
+* Każdy wierzchołek kopca jest mniejszy niż jego synowie,
+* czyli minimalny wierzchołek jest w korzeniu.
+* Modyfikatory działają w czasie logarytmicznym ze względu
+* na aktualną wielkość kopca.
+* Pamięta wszystkie wierzchołki kopca na wektorze.
+* Wierzchołek 0 to korzeń, 1 to jego lewy syn, 2 to prawy syn itd.
 */
 typedef struct Heap {
     Vector *v; ///< Wskaźnik na wektor zawierający wierzchołki kopca
@@ -23,7 +26,7 @@ typedef struct Heap {
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-Heap* newHeap( bool (*cmp)(void *, void *) ) {
+Heap *newHeap(bool (*cmp)(void *, void *)) {
     Heap *heap;
     if (!(heap = malloc(sizeof(Heap))))
         return NULL;
@@ -75,8 +78,7 @@ bool insert(Heap *heap, void *ptr) {
         return false;
 
     int pos = heap->v->size - 1;
-    while (pos != 0 && heap->cmp(heap->v->data[parent(pos)], heap->v->data[pos])) {
-
+    while (pos && heap->cmp(heap->v->data[parent(pos)], heap->v->data[pos])) {
         swapElements(heap->v, pos, parent(pos));
         pos = parent(pos);
     }
@@ -97,7 +99,7 @@ bool empty(Heap *heap) {
  * @param[in,out] heap - wskaźnik na kopiec
  * @return Minimalny wskaźnik z kopca lub NULL, gdy kopiec jest pusty.
  */
-void* pop(Heap *heap) {
+void *pop(Heap *heap) {
     if (empty(heap))
         return NULL;
 
@@ -107,14 +109,14 @@ void* pop(Heap *heap) {
     int pos = 0, left = 1, right = 2;
     while (left < heap->v->size) {
 
-        if (left == heap->v->size - 1 || heap->cmp(heap->v->data[right], heap->v->data[left]) ) {//prawy juz jest poza
+        if (left == heap->v->size - 1 ||
+            heap->cmp(heap->v->data[right], heap->v->data[left])) {
             if (heap->cmp(heap->v->data[pos], heap->v->data[left])) {
                 swapElements(heap->v, left, pos);
                 pos = left;
             }
 
-        }
-        else {
+        } else {
             if (heap->cmp(heap->v->data[pos], heap->v->data[right])) {
                 swapElements(heap->v, right, pos);
                 pos = right;

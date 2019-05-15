@@ -32,14 +32,12 @@ do
           WORD=${LINE%%;*}
           LINE=${LINE#*;}
           LINE=${LINE#*;}
-#          echo "$WORD"
           ((LENGTH+=$WORD))
         done
 
         echo "$query;$LENGTH"
-
       fi
-   done <$1
+    done <"$1"
 
   fi
 

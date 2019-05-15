@@ -17,9 +17,10 @@
 /** Tworzy nową trasę.
  * Tworzy nową trasę, która ma pustą listę miast i dróg.
  * @param[in] id - numer trasy
- * @return Wskaźnik na nową strukturę lub NULL, gdy nie udało się zaalokować pamięci.
+ * @return Wskaźnik na nową strukturę lub NULL,
+ * gdy nie udało się zaalokować pamięci.
  */
-Route* nRoute(int id) {
+Route *nRoute(int id) {
     Route *ptr;
     if (!(ptr = malloc(sizeof(Route))))
         return NULL;
@@ -42,7 +43,8 @@ Route* nRoute(int id) {
 
 /** Usuwa trasę.
  * Zwalnia pamięć zaalokowaną pod trasę.
- * Dodatkowo usuwa wskaźnik na tę trasę ze wszystkich dróg na niej występujących.
+ * Dodatkowo usuwa wskaźnik na tę trasę ze wszystkich dróg
+ * na niej występujących.
  * Nic nie robi, gdy wskaźnik jest równy NULL.
  * @param[in,out] route - wskaźnik na usuwaną strukturę
  */
@@ -57,6 +59,7 @@ void deleteRoute(Route *route) {
     deleteVector(route->roads);
     free(route);
 }
+
 /** Liczy długość liczby w zapisie dziesiętnym.
  * Jeśli jest ujemna, jest dłuższa o 1.
  * @param[in] a - liczba
@@ -94,20 +97,20 @@ static int RouteToStringHelper(Route *route, char *string, bool print) {
 
         if (print)
             sprintf(string + len, ";%s", city->name);
-        len ++;
+        len++;
         len += strlen(city->name);
 
         if (i < route->roads->size) {
             Road *road = route->roads->data[i];
             if (print)
                 sprintf(string + len, ";%d;%d", road->length, road->builtYear);
-            len ++;
+            len++;
             len += intLen(road->length);
-            len ++;
+            len++;
             len += intLen(road->builtYear);
         }
     }
-    len ++;
+    len++;
     return len;
 }
 
@@ -117,7 +120,7 @@ static int RouteToStringHelper(Route *route, char *string, bool print) {
  * @param[in] route - wskaźnik na trasę
  * @return Wskaźnik na napis lub NULL, gdy nie udao się zaalokować pamięci.
  */
-char* RouteToString(Route *route) {
+char *RouteToString(Route *route) {
     char *res;
     int len;
 
@@ -141,20 +144,21 @@ char* RouteToString(Route *route) {
 /** Znajduje optymalną trasę między dwoma miastami.
  * Jeżeli istnieje więcej niż jedna najlepsza trasa, zwraca pewne dwie najlepsze.
  * Optymalną, tzn. najkrótszą, zgodną ze specyfikacją @ref newRoute.
- * Znajduje ją za pomocą algorytmu Dijikstry, działa w czasie O(m log m), gdzie m to liczba dróg na całej mapie.
+ * Znajduje ją za pomocą algorytmu Dijikstry, działa w czasie O(m log m),
+ * gdzie m to liczba dróg na całej mapie.
  *
  * @param[in] cities - wskaźnik na wektor wszystkich miast
  * @param[in] source - wskaźnik na początkowe miasto
  * @param[in] target - wskaźnik na końcowe miasto
  * @param[in] avoid - wskaźnik na drogę, którą omijamy (może być NULL)
  * @param[in] avoid2 - wskaźnik na trasę, której miasta omijamy (może być NULL)
- * @return Wskaźnik na wektor zawiejący jedną lub dwie optymalne trasy lub NULL, gdy nie udało się znaleźć takiej trasy lub zaalokować pamięci
+ * @return Wskaźnik na wektor zawiejący jedną lub dwie optymalne trasy lub NULL,
+ * gdy nie udało się znaleźć takiej trasy lub zaalokować pamięci
  */
-Vector* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route *avoid2) {
+Vector *dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route *avoid2) {
     bool ok = true;
 
     Heap *heap = newHeap((bool (*)(void *, void *)) cmpDistance);
-
 
     if (heap == NULL)
         return NULL;
@@ -188,12 +192,10 @@ Vector* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route
             if (city->distance2) {
                 deleteDistance(distance);
                 continue;
-            }
-            else {
+            } else {
                 city->distance2 = distance;
             }
-        }
-        else
+        } else
             city->distance = distance;
 
         for (int i = 0; i < city->roads->size; i++) {
@@ -230,7 +232,8 @@ Vector* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route
         return NULL;
     }
 
-    if (cmpDistance(source->distance, source->distance2) && cmpDistance(source->distance2, source->distance))
+    if (cmpDistance(source->distance, source->distance2) &&
+        cmpDistance(source->distance2, source->distance))
         if (!(res2 = nRoute(0))) {
             deleteRoute(res);
             for (int i = 0; i < cities->size; i++)
@@ -243,7 +246,8 @@ Vector* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route
     while (cur != target || (res2 && cur2 != target)) {
         Road *road = cur->distance->road;
         if (cur != target)
-            if (!pushBack(res->cities, cur) || !pushBack(res->roads, road) || !pushBack(road->routes, res))
+            if (!pushBack(res->cities, cur) || !pushBack(res->roads, road) ||
+                !pushBack(road->routes, res))
                 ok = false;
 
         if (res2 && cur2 != target) {
@@ -253,7 +257,8 @@ Vector* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route
             else
                 road2 = cur2->distance->road;
 
-            if (!pushBack(res2->cities, cur2) || !pushBack(res2->roads, road2) || !pushBack(road2->routes, res2))
+            if (!pushBack(res2->cities, cur2) || !pushBack(res2->roads, road2) ||
+                !pushBack(road2->routes, res2))
                 ok = false;
 
             cur2 = otherCity(road2, cur2);
@@ -295,16 +300,19 @@ Vector* dijikstra(Vector *cities, City *source, City *target, Road *avoid, Route
 /** Znajduje optymalną trasę między dwoma miastami.
  * Jeżeli istnieje więcej niż jedna najlepsza trasa, zwraca NULL.
  * Optymalną, tzn. najkrótszą, zgodną ze specyfikacją @ref newRoute.
- * Znajduje ją za pomocą algorytmu Dijikstry, działa w czasie O(m log m), gdzie m to liczba dróg na całej mapie.
+ * Znajduje ją za pomocą algorytmu Dijikstry, działa w czasie O(m log m),
+ * gdzie m to liczba dróg na całej mapie.
  *
  * @param[in] cities - wskaźnik na wektor wszystkich miast
  * @param[in] source - wskaźnik na początkowe miasto
  * @param[in] target - wskaźnik na końcowe miasto
  * @param[in] avoid - wskaźnik na drogę, którą omijamy (może być NULL)
  * @param[in] avoid2 - wskaźnik na trasę, której miasta omijamy (może być NULL)
- * @return Wskaźnik na szuakną trasę lub NULL, gdy nie udało się jednoznacznie znaleźć takiej trasy lub zaalokować pamięci
+ * @return Wskaźnik na szuakną trasę lub NULL, gdy nie udało się jednoznacznie
+ * znaleźć takiej trasy lub zaalokować pamięci
  */
-Route* dijikstraOnlyOne(Vector *cities, City *source, City *target, Road *avoid, Route *avoid2) {
+Route *dijikstraOnlyOne(Vector *cities, City *source, City *target,
+                        Road *avoid, Route *avoid2) {
     Vector *v = dijikstra(cities, source, target, avoid, avoid2);
     if (!v)
         return NULL;
@@ -322,14 +330,16 @@ Route* dijikstraOnlyOne(Vector *cities, City *source, City *target, Road *avoid,
 }
 
 /** Dodaje do trasy fragment innej trasy.
- * Dodaje @p end - @p begin - 1 miast oraz dróg, począwszy od miasta na pozycji @p begin.
+ * Dodaje @p end - @p begin - 1 miast oraz dróg,
+ * począwszy od miasta na pozycji @p begin.
  * @param[in,out] route
  * @param[in] add
  * @param[in] begin
  * @param[in] end
- * @return @p false gdy nie udało się zaalokować pamięci (wtedy nie modyfikuje @p route) lub @p true w przeciwnym przypadku
+ * @return @p false gdy nie udało się zaalokować pamięci
+ * (wtedy nie modyfikuje @p route) lub @p true w przeciwnym przypadku
  */
-static bool addRoute(Route* route, Route* add, int begin, int end) {
+static bool addRoute(Route *route, Route *add, int begin, int end) {
     bool ok = true;
     int cs = route->cities->size;
     int rs = route->roads->size;
@@ -342,7 +352,7 @@ static bool addRoute(Route* route, Route* add, int begin, int end) {
         if (!pushBack(route->roads, r))
             ok = false;
 
-        else if (!pushBack(r->routes,  route))
+        else if (!pushBack(r->routes, route))
             ok = false;
     }
     if (!ok) {
@@ -362,9 +372,10 @@ static bool addRoute(Route* route, Route* add, int begin, int end) {
  * @param[in] cities - wskaźnik na wektor wszystkich miast
  * @param[in] route - wskaźnik na starą trasę
  * @param[in] road - wskaźnik na omijaną drogę
- * @return Wskaźnik na nowa trasę lub NULL, gdy nie istnieje taki objazd lub nie udało się zaalokować pamięci.
+ * @return Wskaźnik na nowa trasę lub NULL, gdy nie istnieje taki objazd lub
+ * nie udało się zaalokować pamięci.
  */
-Route* bypass(Vector *cities, Route* route, Road *road) {
+Route *bypass(Vector *cities, Route *route, Road *road) {
     Route *full = nRoute(route->id);
     if (!full)
         return NULL;
@@ -416,7 +427,7 @@ static Distance *getDistance(Route *route) {
     if (!res)
         return NULL;
 
-    for (int i = 0; i<route->roads->size; i++) {
+    for (int i = 0; i < route->roads->size; i++) {
         Road *r = route->roads->data[i];
         res->length += r->length;
         if (res->oldestBuiltYear > r->builtYear)
@@ -427,11 +438,13 @@ static Distance *getDistance(Route *route) {
 
 /** Znajduje przedłużenie (na koniec) trasy do nowego miasta.
  * Nowe miasto może być dołączone tylko jako ostatnie miasto trasy.
- * Jeśli da się to zrobić optymalnie na więcej niż jeden sposób, zwraca pewne dwie optymalne możliwości.
+ * Jeśli da się to zrobić optymalnie na więcej niż jeden sposób,
+ * zwraca pewne dwie optymalne możliwości.
  * @param[in] cities - wskaźnik na wektor zawierający wszystkie miasta
  * @param[in] r - wskaźnik na trasę, którą wydłużamy
  * @param[in] city - wskaźnik na miasto, do którego wydłużamy
- * @return Wskaźnik na wektor zawiejący jedną lub dwie optymalne wydłużone trasy lub NULL, gdy nie udało się znaleźć takiej trasy lub zaalokować pamięci
+ * @return Wskaźnik na wektor zawiejący jedną lub dwie optymalne wydłużone trasy lub NULL,
+ * gdy nie udało się znaleźć takiej trasy lub zaalokować pamięci
  */
 static Vector *extendFront(Vector *cities, Route *r, City *city) {
     Vector *v = dijikstra(cities, r->cities->data[r->cities->size - 1], city, NULL, r);
@@ -449,8 +462,7 @@ static Vector *extendFront(Vector *cities, Route *r, City *city) {
         if (res)
             if (!addRoute(res, r, 0, r->roads->size) ||
                 !addRoute(res, extention, 0, extention->roads->size) ||
-                !pushBack(res->cities, extention->cities->data[extention->cities->size - 1]))
-            {
+                !pushBack(res->cities, extention->cities->data[extention->cities->size - 1])) {
                 deleteRoute(res);
                 res = NULL;
             }
@@ -463,11 +475,13 @@ static Vector *extendFront(Vector *cities, Route *r, City *city) {
 
 /** Znajduje przedłużenie (na początek) trasy do nowego miasta.
  * Nowe miasto może być dołączone tylko jako pierwsze miasto trasy.
- * Jeśli da się to zrobić optymalnie na więcej niż jeden sposób, zwraca pewne dwie optymalne możliwości.
+ * Jeśli da się to zrobić optymalnie na więcej niż jeden sposób,
+ * zwraca pewne dwie optymalne możliwości.
  * @param[in] cities - wskaźnik na wektor zawierający wszystkie miasta
  * @param[in] r - wskaźnik na trasę, którą wydłużamy
  * @param[in] city - wskaźnik na miasto, do którego wydłużamy
- * @return Wskaźnik na wektor zawiejący jedną lub dwie optymalne wydłużone trasy lub NULL, gdy nie udało się znaleźć takiej trasy lub zaalokować pamięci
+ * @return Wskaźnik na wektor zawiejący jedną lub dwie optymalne wydłużone trasy lub NULL,
+ * gdy nie udało się znaleźć takiej trasy lub zaalokować pamięci
  */
 static Vector *extendBack(Vector *cities, Route *r, City *city) {
     Vector *v = dijikstra(cities, city, r->cities->data[0], NULL, r);
@@ -484,8 +498,7 @@ static Vector *extendBack(Vector *cities, Route *r, City *city) {
         if (res)
             if (!addRoute(res, extention, 0, extention->roads->size) ||
                 !addRoute(res, r, 0, r->roads->size) ||
-                !pushBack(res->cities, r->cities->data[r->cities->size - 1]))
-            {
+                !pushBack(res->cities, r->cities->data[r->cities->size - 1])) {
                 deleteRoute(res);
                 res = NULL;
             }
@@ -551,8 +564,7 @@ Route *extendBoth(Vector *cities, Route *r, City *city) {
         }
         deleteRoute(back2);
         return back1;
-    }
-    else {
+    } else {
         deleteDistance(dF);
         deleteDistance(dB);
 

@@ -19,7 +19,7 @@
 typedef struct Vector {
     int maxSize; ///< Długość zaalokowanej pamięci
     int size; ///< Długość wektora
-	void **data; ///< Wskaźnik na tablicę zawierającą elementy wektora
+    void **data; ///< Wskaźnik na tablicę zawierającą elementy wektora
 } Vector;
 
 /** @brief Tworzy nowy wektor.
@@ -27,14 +27,14 @@ typedef struct Vector {
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-Vector* newVector();
+Vector *newVector();
 
 /** @brief Tworzy nowy wektor o podanej długości.
  * @param [in] size - długość nowego wektora.
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-Vector* newVectorWithSize(int size);
+Vector *newVectorWithSize(int size);
 
 /** @brief Usuwa wektor.
  * Usuwa wektor wskazywany przez @p vector.
@@ -55,7 +55,7 @@ bool pushBack(Vector *vector, void *ptr);
  * @param[in,out] vector - wskaźnik na wektor
  * @return  Ostatni wskaźnik z wektora lub NULL, gdy wektor jest pusty.
  */
-void* popBack(Vector *vector);
+void *popBack(Vector *vector);
 
 /** @brief Zamienia miejscami dwa elementy wektora.
  * @param[in,out] vector - wskaźnik na wektor

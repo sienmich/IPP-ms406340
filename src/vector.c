@@ -14,7 +14,7 @@
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-Vector* newVector() {
+Vector *newVector() {
     Vector *vector;
     if (!(vector = malloc(sizeof(Vector))))
         return NULL;
@@ -25,12 +25,14 @@ Vector* newVector() {
 
     return vector;
 }
+
 /** Alokuje nową pamięć dla wektora.
  * Nie zmienia jego rozmiaru.
  *
  * @param[in,out] vector - wskaźnik na wektor
  * @param[in] newMaxSize - nowy rozmiar alokowanej pamięci
- * @return @p false gdy nie udało się zaalkować pamięci, @p true w przeciwnym przypadku
+ * @return @p false gdy nie udało się zaalkować pamięci,
+ * @p true w przeciwnym przypadku
  */
 static bool reMaxSize(Vector *vector, int newMaxSize) {
     void **tmp = realloc(vector->data, newMaxSize * sizeof(void *));
@@ -47,7 +49,7 @@ static bool reMaxSize(Vector *vector, int newMaxSize) {
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-Vector* newVectorWithSize(int size) {
+Vector *newVectorWithSize(int size) {
     Vector *vector = newVector();
     if (!vector)
         return NULL;
@@ -76,12 +78,13 @@ void deleteVector(Vector *vector) {
 
 /** Alokuje dwa razy więcej pamięci na wektor.
  * @param vector - wskaźnik na wektor
- * @return @p false gdy nie udało się zaalkować pamięci, @p true w przeciwnym przypadku
+ * @return @p false gdy nie udało się zaalkować pamięci,
+ * @p true w przeciwnym przypadku
  */
 static bool extend(Vector *vector) {
-	if (vector->maxSize == 0)
+    if (vector->maxSize == 0)
         return reMaxSize(vector, 1);
-	else
+    else
         return reMaxSize(vector, vector->maxSize * 2);
 }
 
@@ -92,10 +95,10 @@ static bool extend(Vector *vector) {
  * Wartość @p false, jeśli nie udało się zaalokować pamięci.
  */
 bool pushBack(Vector *vector, void *ptr) {
-	if (vector->size == vector->maxSize)
+    if (vector->size == vector->maxSize)
         if (!extend(vector))
             return false;
-	vector->data[vector->size++] = ptr;
+    vector->data[vector->size++] = ptr;
     return true;
 }
 
@@ -103,7 +106,7 @@ bool pushBack(Vector *vector, void *ptr) {
  * @param[in,out] vector - wskaźnik na wektor
  * @return  Ostatni wskaźnik z wektora lub NULL, gdy wektor jest pusty.
  */
-void* popBack(Vector *vector) {
+void *popBack(Vector *vector) {
     if (!vector->size)
         return NULL;
     vector->size--;
@@ -121,7 +124,8 @@ void swapElements(Vector *vector, int a, int b) {
     vector->data[b] = tmp;
 }
 
-/** @brief Usuwa z wektora jeden element. Może zmienić kolejność pozostałych.
+/** @brief Usuwa z wektora jeden element.
+ * Może zmienić kolejność pozostałych.
  * Przegląda po kolei elementy wektora i porównuje je z [ptr].
  * Pierwszy, który będzie równy zamienia z ostatnim i usuwa.
  * Jeśli nie znajdzie równego elementu, nic nie robi.

@@ -1,13 +1,25 @@
+/** @file
+ * Program, który korzystając z modułu map.h udostępnia operacja na mapie.
+ * Program czyta dane ze standardowego wejścia, wyniki wypisuje na standardowe wyjście,
+ * a informacje o błędach na standardowe wyjście diagnostyczne.
+ *
+ * @author Michał Siennicki <ms406340@students.mimuw.edu.pl>
+ * @copyright Michał Siennicki
+ * @date 15.05.2019
+ */
+
+
+
 #include "map.h"
 #include "stringVector.h"
+#include "vector.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <stdio.h>
 
 /** Przetwarza zapytanie o mapę.
- * Dokłądna specyfikacja zapytań znajduje się w
+ * Dokładna specyfikacja zapytań znajduje się w
  * [treści zadania](https://moodle.mimuw.edu.pl/mod/assign/view.php?id=13381).
  *
  * @param[in,out] m - wskaźnik na mapę
@@ -26,16 +38,16 @@ static bool processQuery(Map *m, Vector *line) {
     if (!strcmp(first->data, "addRoad") && line->size == 5) {
         int length = toInt(line->data[3]);
         int builtYear = toInt(line->data[4]);
-        char *city1 = ((String*) (line->data[1]))->data;
-        char *city2 = ((String*) (line->data[2]))->data;
+        char *city1 = toCharArray(line->data[1]);
+        char *city2 = toCharArray(line->data[2]);
 
         return addRoad(m, city1, city2, length, builtYear);
     }
 
     if (!strcmp(first->data, "repairRoad") && line->size == 4) {
         int repairYear = toInt(line->data[3]);
-        char *city1 = ((String*) (line->data[1]))->data;
-        char *city2 = ((String*) (line->data[2]))->data;
+        char *city1 = toCharArray(line->data[1]);
+        char *city2 = toCharArray(line->data[2]);
 
         return repairRoad(m, city1, city2, repairYear);
     }
@@ -55,9 +67,19 @@ static bool processQuery(Map *m, Vector *line) {
     return newRouteFromDescription(m, line);
 }
 
+/** Wczytuje i przetwarza zapytania o mapę.
+ * Wczytuje dane ze standardowego wejścia, wyniki wypisuje na standardowe wyjście,
+ * a informacje o błędach na standardowe wyjście diagnostyczne.
+ * Dokładna specyfikacja zapytań znajduje się w
+ * [treści zadania](https://moodle.mimuw.edu.pl/mod/assign/view.php?id=13381).
+ *
+ * @return @p 0
+ */
 int main() {
 
-    Map* m = newMap();
+    Map *m = newMap();
+    if (!m)
+        return 0;
 
     for (int lineNr = 1; true; lineNr++) {
         Vector *line = readLine();

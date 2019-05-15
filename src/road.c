@@ -16,10 +16,11 @@
  * @param[in] city2 - wskaźnik na drugie miasto
  * @param[in] length - długość drogi
  * @param[in] builtYear - rok budowy drogi
- * @return Wskaźnik na nowo utworzoną strukturę lub NULL, jeśli nie udało się zaalokować pamięci.
+ * @return Wskaźnik na nowo utworzoną strukturę lub NULL,
+ * jeśli nie udało się zaalokować pamięci.
  */
-Road* newRoad(City *city1, City *city2, unsigned length, int builtYear) {
-	Road *ptr;
+Road *newRoad(City *city1, City *city2, unsigned length, int builtYear) {
+    Road *ptr;
     if (!(ptr = malloc(sizeof(Road))))
         return NULL;
 
@@ -37,12 +38,14 @@ Road* newRoad(City *city1, City *city2, unsigned length, int builtYear) {
 }
 
 /** Usuwa drogę.
- * Usuwa drogę. Naprawia za pomocą objazdów (zgodnie ze specyfikacją @ref removeRoad) wszystkie trasy, które korzystały z tej drogi.
+ * Usuwa drogę. Naprawia za pomocą objazdów (zgodnie ze specyfikacją
+ * @ref removeRoad) wszystkie trasy, które korzystały z tej drogi.
  *
  * @param[in,out] road - wskaźnik na usuwaną drogę
  * @param[in] cities - wskaźnik na wektor zawierający wszystkie miasta
  * @param[in,out] routes - wskaźnik na wektor zawierający wszystkie trasy
- * @return @p false gdy wystąpił błąd - nie da się uzupełnić tras lub nie udało się zaalokować pamięci.
+ * @return @p false gdy wystąpił błąd - nie da się uzupełnić tras lub
+ * nie udało się zaalokować pamięci.
  * Wtedy podane dane pozostają niezmodyfikowane. @p true w przeciwnym przypadku.
  */
 bool deleteRoad(Road *road, Vector *cities, Vector *routes) {
@@ -52,10 +55,8 @@ bool deleteRoad(Road *road, Vector *cities, Vector *routes) {
 
     for (int i = 0; i < road->routes->size; i++) {
         Route *alt = bypass(cities, road->routes->data[i], road);
-
         if (!alt)
             break;
-
         if (!pushBack(altRoutes, alt)) {
             deleteRoute(alt);
             break;
@@ -82,19 +83,20 @@ bool deleteRoad(Road *road, Vector *cities, Vector *routes) {
 
     deleteRoadUnsafe(road);
 
-	return true;
+    return true;
 }
 
-/** Zwalnia pamięć zadeklarowaną jako droga i usuwa ją z list sąsiedzctwa łączonych miast.
+/** Zwalnia pamięć  i usuwa drogę z list sąsiedzctwa łączonych miast.
  * Nie modyfikuje tras, na których znajduje się dana droga.
- * Zatem można użyć tej funkcji tylko wtedy, gdy droga na pewno nie należy do żadnej trasy.
+ * Zatem można użyć tej funkcji tylko wtedy,
+ * gdy droga na pewno nie należy do żadnej trasy.
  * @param[in,out] road - wskaźnik na drogę
  */
 void deleteRoadUnsafe(Road *road) {
     deleteVector(road->routes);
     deleteRoadFromCity(road->city1, road);
     deleteRoadFromCity(road->city2, road);
-	free(road);
+    free(road);
 }
 
 /** Zwraca wskaźnik na drugi koniec drogi.
