@@ -53,7 +53,11 @@ static bool processQuery(Map *m, Vector *line) {
     }
 
     if (!strcmp(first->data, "getRouteDescription") && line->size == 2) {
-        int routeId = toInt(line->data[1]);
+        String *second = line->data[1];
+        int routeId = toInt(second);
+
+        if (routeId <= 0 && strcmp(toCharArray(second), "0"))
+            return false;
         char *res = (char *) getRouteDescription(m, routeId);
         if (!res)
             return false;

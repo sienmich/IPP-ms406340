@@ -13,6 +13,10 @@
 #include <stdbool.h>
 #include "vector.h"
 
+/** Stała określająca maksymalny numer trasy
+ */
+#define ROUTES_SIZE 1000
+
 /**
  * Struktura przechowująca mapę dróg krajowych.
  */

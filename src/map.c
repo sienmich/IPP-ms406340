@@ -7,7 +7,6 @@
  * @date 29.04.2019
  */
 #include <stdlib.h>
-#include <stdio.h>
 
 #include <string.h>
 #include "map.h"
@@ -17,9 +16,6 @@
 #include "route.h"
 #include "stringVector.h"
 
-/** Stała określająca maksymalny numer trasy
- */
-#define ROUTES_SIZE 1000
 
 /**
  * Struktura przechowująca mapę dróg krajowych.
@@ -259,6 +255,60 @@ static Road *findRoadOrAdd(Map *map, const char *city1, const char *city2,
 }
 
 
+/** Sprawdza, czy napis jest poprawnym opisem trasy do stworzenia.
+ * Opis to ciąg słów postaci "numer drogi krajowej;nazwa miasta;
+ * długość odcinka drogi;rok budowy lub ostatniego remontu;nazwa miasta;
+ * długość odcinka drogi;rok budowy lub ostatniego remontu;nazwa miasta;
+ * …;nazwa miasta".
+ *
+ * Za błąd uznajemy, jeśli odcinek drogi już istnieje, ale ma inną
+ * długość albo późniejszy rok budowy lub ostatniego remontu.
+ *
+ * @param[in,out] map - wskaźnik na mapę
+ * @param[in] description - wskaźnik na wektor stringów
+ * @return @p false gdy opis jest niepoprawny.
+ * @p true w przeciwnym przypadku.
+ */
+static bool validRouteFromDescription(Map *map, Vector *description) {
+    if (description->size % 3 != 2 || description->size <= 2)
+        return false;
+
+    int routeId = toInt(description->data[0]);
+    if (routeId < 1 || routeId >= ROUTES_SIZE)
+        return false;
+    if (map->routes->data[routeId])
+        return false;
+
+    for (int i = 1; i < description->size; i++) {
+        if (i % 3 == 1)
+            if (!validCityName(toCharArray(description->data[i])))
+                return false;
+        if (i % 3 == 0 || i % 3 == 2)
+            if (!toInt(description->data[i]))
+                return false;
+    }
+    char *lastCity = toCharArray(description->data[1]);
+
+    for (int i = 2; i < description->size; i += 3) {
+        int length = toInt(description->data[i]);
+        int year = toInt(description->data[i + 1]);
+        char *nextCity = toCharArray(description->data[i + 2]);
+
+        Road *road = findRoadFromStrings(map, lastCity, nextCity);
+
+        if (road) {
+            if ((int) road->length != length)
+                return false;
+            if (road->builtYear > year)
+                return false;
+        }
+
+        lastCity = nextCity;
+    }
+
+    return true;
+}
+
 /** Tworzy nową trasę na podstawie opisu.
  * Opis to ciąg słów postaci "numer drogi krajowej;nazwa miasta;
  * długość odcinka drogi;rok budowy lub ostatniego remontu;nazwa miasta;
@@ -281,23 +331,9 @@ static Road *findRoadOrAdd(Map *map, const char *city1, const char *city2,
  * @p true w przeciwnym przypadku.
  */
 bool newRouteFromDescription(Map *map, Vector *description) {
-    if (description->size % 3 != 2)
+    if (!validRouteFromDescription(map, description))
         return false;
-
     int routeId = toInt(description->data[0]);
-    if (routeId < 1 || routeId >= ROUTES_SIZE)
-        return false;
-    if (map->routes->data[routeId])
-        return false;
-
-    for (int i = 1; i < description->size; i++) {
-        if (i % 3 == 1)
-            if (!validCityName(toCharArray(description->data[i])))
-                return false;
-        if (i % 3 == 0 || i % 3 == 2)
-            if (!toInt(description->data[i]))
-                return false;
-    }
 
     Route *res = nRoute(routeId);
     bool ok = true;
@@ -332,6 +368,7 @@ bool newRouteFromDescription(Map *map, Vector *description) {
     map->routes->data[routeId] = res;
     return true;
 }
+
 
 /** @brief Usuwa odcinek drogi między dwoma różnymi miastami.
  * Usuwa odcinek drogi między dwoma miastami. Jeśli usunięcie tego odcinka drogi
