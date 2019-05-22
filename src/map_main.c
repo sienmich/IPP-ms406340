@@ -67,6 +67,35 @@ static bool processQuery(Map *m, Vector *line) {
             return true;
         }
     }
+    
+    
+    if (!strcmp(first->data, "newRoute") && line->size == 4) {
+        int routeId = toInt(line->data[1]);
+        char *city1 = toCharArray(line->data[2]);
+        char *city2 = toCharArray(line->data[3]);
+
+        return newRoute(m, routeId, city1, city2);
+    }
+    
+    if (!strcmp(first->data, "extendRoute") && line->size == 3) {
+        int routeId = toInt(line->data[1]);
+        char *city = toCharArray(line->data[2]);
+
+        return extendRoute(m, routeId, city);
+    }
+    
+    if (!strcmp(first->data, "removeRoad") && line->size == 3) {
+        char *city1 = toCharArray(line->data[1]);
+        char *city2 = toCharArray(line->data[2]);
+
+        return removeRoad(m, city1, city2);
+    }
+    
+	if (!strcmp(first->data, "removeRoute") && line->size == 2) {
+        int routeId = toInt(line->data[1]);
+
+        return removeRoute(m, routeId);
+    }
 
     return newRouteFromDescription(m, line);
 }

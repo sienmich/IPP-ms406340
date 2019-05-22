@@ -87,6 +87,20 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear);
  */
 bool newRoute(Map *map, unsigned routeId,
               const char *city1, const char *city2);
+              
+              
+/** @brief Usuwa drogę krajową o podanym numerze.
+ * Usuwa z mapy dróg drogę krajową o podanym numerze, jeśli taka istnieje,
+ * dając wynik true, a w przeciwnym przypadku, tzn. gdy podana droga krajowa
+ * nie istnieje lub podany numer jest niepoprawny, niczego nie zmienia w
+ * mapie dróg, dając wynik false. Nie usuwa odcinków dróg ani miast.
+ * @param[in,out] map    – wskaźnik na strukturę przechowującą mapę dróg;
+ * @param[in] routeId    – numer drogi krajowej;
+ * @return Wartość @p true, jeśli droga została usunięta.
+ * Wartość @p false, jeśli wystąpił błąd: nie istnieje droga krajowa o
+ * podanym numerze.
+ */
+bool removeRoute(Map *map, unsigned routeId);
 
 /** @brief Wydłuża drogę krajową do podanego miasta.
  * Dodaje do drogi krajowej nowe odcinki dróg do podanego miasta w taki sposób,

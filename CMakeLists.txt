@@ -37,7 +37,7 @@ set(SOURCE_FILES
     src/stringVector.h
     src/heap.c
     src/heap.h
-    src/map_main.c)
+    src/map_tests.c)
 
 # Wskazujemy plik wykonywalny.
 add_executable(map ${SOURCE_FILES})
