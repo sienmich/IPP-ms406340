@@ -517,9 +517,9 @@ char const *getRouteDescription(Map *map, unsigned routeId) {
 bool removeRoute(Map *map, unsigned routeId) {
     if (routeId < 1 || routeId >= ROUTES_SIZE)
 		return false;
-	if (!map->routes[routeId])
+	if (!map->routes->data[routeId])
 		return false;
-	deleteRoute(map->routes[routeId]);
-	map->routes[routeId] = NULL;
+	deleteRoute(map->routes->data[routeId]);
+	map->routes->data[routeId] = NULL;
 	return true;
 }
