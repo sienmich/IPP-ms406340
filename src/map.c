@@ -283,8 +283,11 @@ static bool validRouteFromDescription(Map *map, Vector *description) {
         if (i % 3 == 1)
             if (!validCityName(toCharArray(description->data[i])))
                 return false;
-        if (i % 3 == 0 || i % 3 == 2)
+        if (i % 3 == 0)
             if (!toInt(description->data[i]))
+                return false;
+        if (i % 3 == 2)
+            if (toInt(description->data[i]) <= 0)
                 return false;
     }
     char *lastCity = toCharArray(description->data[1]);

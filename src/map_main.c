@@ -37,6 +37,8 @@ static bool processQuery(Map *m, Vector *line) {
 
     if (!strcmp(first->data, "addRoad") && line->size == 5) {
         int length = toInt(line->data[3]);
+        if (length < 0)
+            return false;
         int builtYear = toInt(line->data[4]);
         char *city1 = toCharArray(line->data[1]);
         char *city2 = toCharArray(line->data[2]);
@@ -46,6 +48,7 @@ static bool processQuery(Map *m, Vector *line) {
 
     if (!strcmp(first->data, "repairRoad") && line->size == 4) {
         int repairYear = toInt(line->data[3]);
+
         char *city1 = toCharArray(line->data[1]);
         char *city2 = toCharArray(line->data[2]);
 
@@ -67,7 +70,6 @@ static bool processQuery(Map *m, Vector *line) {
             return true;
         }
     }
-    
     
     if (!strcmp(first->data, "newRoute") && line->size == 4) {
         int routeId = toInt(line->data[1]);
