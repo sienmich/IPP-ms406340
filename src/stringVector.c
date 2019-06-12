@@ -127,10 +127,22 @@ String *newStringRead() {
  * @return wartość liczbowa napisu lub @p 0 w przypadku nieudanej konwersji
  */
 int toInt(String *s) {
-    long long res = strtoll(s->data, NULL, 10);
-    int res2 = res;
-    if (res != (long long) res2)
-        return false;
+    int res = 0;
+    int i = 0;
+    if (s->data[0] == '-')
+        i++;
+    while (s->data[i]) {
+        if (s->data[i] < '0' || s->data[i] > '9')
+            return 0;
+        res *= 10;
+        res += s->data[i] - '0';
+        if (res < 0)
+            return 0;
+        i++;
+    }
+    if (s->data[0] == '-')
+        res = -res;
+
     return res;
 }
 

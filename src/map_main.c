@@ -8,8 +8,6 @@
  * @date 15.05.2019
  */
 
-
-
 #include "map.h"
 #include "stringVector.h"
 #include "vector.h"
@@ -73,6 +71,8 @@ static bool processQuery(Map *m, Vector *line) {
     
     if (!strcmp(first->data, "newRoute") && line->size == 4) {
         int routeId = toInt(line->data[1]);
+        if (routeId < 0)
+            return false;
         char *city1 = toCharArray(line->data[2]);
         char *city2 = toCharArray(line->data[3]);
 
@@ -81,6 +81,8 @@ static bool processQuery(Map *m, Vector *line) {
     
     if (!strcmp(first->data, "extendRoute") && line->size == 3) {
         int routeId = toInt(line->data[1]);
+        if (routeId < 0)
+            return false;
         char *city = toCharArray(line->data[2]);
 
         return extendRoute(m, routeId, city);
@@ -95,6 +97,8 @@ static bool processQuery(Map *m, Vector *line) {
     
 	if (!strcmp(first->data, "removeRoute") && line->size == 2) {
         int routeId = toInt(line->data[1]);
+        if (routeId < 0)
+            return false;
 
         return removeRoute(m, routeId);
     }
@@ -111,7 +115,6 @@ static bool processQuery(Map *m, Vector *line) {
  * @return @p 0
  */
 int main() {
-
     Map *m = newMap();
     if (!m)
         return 0;
@@ -123,8 +126,9 @@ int main() {
             return 0;
         }
 
-        if (!processQuery(m, line))
+        if (!processQuery(m, line)) {
             fprintf(stderr, "ERROR %d\n", lineNr);
+        }
 
         String *last = line->data[line->size - 1];
         bool kon = last->data[last->size - 1] == EOF;

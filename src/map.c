@@ -350,7 +350,7 @@ bool newRouteFromDescription(Map *map, Vector *description) {
 
         Road *road = findRoadOrAdd(map, lastCity, nextCity, length, year);
 
-        if (!road || !pushBack(res->roads, road))
+        if (!road || !pushBack(res->roads, road) || !pushBack(road->routes, res))
             ok = false;
 
         else if (!pushBack(res->cities, findCityFromString(map, lastCity)))
